@@ -1,0 +1,25 @@
+@CHARSET "ISO-8859-1";
+/* Login Page */
+body{
+	background-color : #56A5E7;
+	font-family: sans-serif;
+	width:960px;
+}
+a:link{
+	color:white;
+}
+a:visited{
+	color:yellow;
+}
+#divLogin{
+	vertical-align: middle;
+	width:500px; 
+	margin:0 auto;
+	padding-top:200px;
+	float:left;
+	align:center;
+}
+#divLogin img{
+	opacity: 0.6;
+	filter: alpha(opacity=60);
+}
