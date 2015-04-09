@@ -1,0 +1,64 @@
+package com.eprescription.web.app;
+
+public class Observation {
+	
+	private String observationName;
+	private String date;
+	private String value;
+	
+	public Observation(){
+		super();
+	}
+	
+	public Observation(Object obj){
+		Observation newObservation = (Observation) obj;
+		this.observationName = newObservation.getObservationName();
+		this.date = newObservation.getDate();
+		this.value = newObservation.getValue();
+	}
+
+	/**
+	 * @return the observationName
+	 */
+	public String getObservationName() {
+		return observationName;
+	}
+
+	/**
+	 * @param observationName the observationName to set
+	 */
+	public void setObservationName(String observationName) {
+		this.observationName = observationName;
+	}
+
+	/**
+	 * @return the date
+	 */
+	public String getDate() {
+		return date;
+	}
+
+	/**
+	 * @param date the date to set
+	 */
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	/**
+	 * @return the value
+	 */
+	public String getValue() {
+		return value;
+	}
+
+	/**
+	 * @param value the value to set
+	 */
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+	
+
+}
