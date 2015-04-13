@@ -40,7 +40,8 @@ public class LoginServlet extends HttpServlet {
 			try
 			{
 				String PatientID = (String)request.getParameter("password");
-				String FHIRResponse = getPatient(PatientID);
+				//String FHIRResponse = getPatient(PatientID);
+				String FHIRResponse = getPatientList();
 				session.setAttribute("PatienID", PatientID);
 				response.sendRedirect("Patient.jsp");
 			}
@@ -58,6 +59,22 @@ public class LoginServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 	}
 	
+	private String getPatientList() throws Exception{
+		String sURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient?_count=10&_format=json";
+		URL myURL = new URL(sURL);
+		HttpURLConnection con = (HttpURLConnection) myURL.openConnection();
+		InputStream ins = con.getInputStream();
+		InputStreamReader isr = new InputStreamReader(ins);
+		BufferedReader in = new BufferedReader(isr);
+		StringBuilder sb = new StringBuilder();
+		String inputLine;
+		while ((inputLine = in.readLine()) != null)
+		{
+			sb.append(inputLine);
+		}
+		return sb.toString();
+	
+	}
 	private String getPatient(String id) throws Exception{
 		String sURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/3.666643100-01?_format=json";
 		URL myURL = new URL(sURL);
