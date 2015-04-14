@@ -7,14 +7,6 @@ public class Problem {
 	private String status;
 	private String onSetDate;
 	
-	public Problem(Object obj){
-		Problem newProblem = (Problem) obj;
-		
-		this.diagnosis = newProblem.getDiagnosis();
-		this.status = newProblem.getStatus();
-		this.onSetDate = newProblem.getOnSetDate();
-	}
-	
 	public Problem(){
 		super();
 	}

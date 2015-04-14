@@ -9,13 +9,6 @@ public class Observation {
 	public Observation(){
 		super();
 	}
-	
-	public Observation(Object obj){
-		Observation newObservation = (Observation) obj;
-		this.observationName = newObservation.getObservationName();
-		this.date = newObservation.getDate();
-		this.value = newObservation.getValue();
-	}
 
 	/**
 	 * @return the observationName

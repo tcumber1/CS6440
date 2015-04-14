@@ -9,14 +9,6 @@ public class Allergy {
 	public Allergy(){
 		super();
 	}
-	
-	public Allergy(Object obj){
-		Allergy newAllergy = (Allergy) obj;
-		
-		this.allergyName = newAllergy.getAllergyName();
-		this.severity = newAllergy.getSeverity();
-		this.reaction = newAllergy.getReaction();
-	}
 
 	/**
 	 * @return the allergyName
