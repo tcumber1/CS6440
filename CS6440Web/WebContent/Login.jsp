@@ -1,6 +1,17 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
 <%@ include file="WEB-INF/header.jsp" %>
-<div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:0px;"></div>
-    <div id="divLogin" style="float:left; padding-top:50px; background-color : #56A5E7; text-align:center; width:100%; Height:100%">
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>E-Perscription - Log In</title>
+</head>
+<body>
+<div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:20px;"></div>
+	<form action="LoginServlet">
+
        <table style="width:500px; margin:0 auto">
            <tr>
                <td style="width:50%; padding-top:50px;">
@@ -40,7 +51,7 @@
                            <tr>
                                <td  style="width:75px;">&nbsp;</td>
                                <td style="text-align:right; margin:5px;">
-                                   <input type="button" id="btnLogin" title="Log In" value="Log In" style="height:40px; width:100px;" />
+                                   <input type="submit" id="btnLogin" title="Log In" value="Log In" style="height:40px; width:100px;" />
                                </td>
                            </tr>
                        </table>
@@ -49,6 +60,13 @@
                </td>
            </tr>
        </table>
-    </div>
-    <%@ include file="WEB-INF/footer.jsp" %>
-    
+ 
+ 	
+ 	</form>
+ 
+ 	<div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:20px;"></div>
+ 	
+ 	
+ 	<%@ include file="WEB-INF/footer.jsp" %>
+ 	
+</body>    
