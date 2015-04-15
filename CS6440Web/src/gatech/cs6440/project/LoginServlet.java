@@ -40,14 +40,16 @@ public class LoginServlet extends HttpServlet {
 			try
 			{
 				String PatientID = (String)request.getParameter("password");
-				//String FHIRResponse = getPatient(PatientID);
-				String FHIRResponse = getPatientList();
+				String FHIRResponse = getPatient(PatientID);
+				//String FHIRResponse = getPatientList();
 				session.setAttribute("PatienID", PatientID);
-				response.sendRedirect("Patient.jsp");
+				String url = "PatientDetail.jsp?id=" + PatientID; 
+				response.sendRedirect(url);
 			}
 			catch (Exception e)
 			{
-				System.out.println(e);
+				//System.out.println(e);
+				throw new ServletException(e);
 			}
 		}
 	}
