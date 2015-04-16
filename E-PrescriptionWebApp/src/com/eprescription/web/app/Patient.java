@@ -19,6 +19,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 
+//these are for the database connection
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.io.*;
+import java.net.*;
+import java.sql.*;
+/////////////////////////////////////////
+
+
 
 import org.json.simple.*;
 import org.json.simple.parser.*;
@@ -46,9 +58,161 @@ public class Patient {
 	private final static String jsonFormatURL = "&_format=json";
 	private final static String xmlFormatURL = "?_format=xml";
 	
+	
+	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
+	static final String DB_URL = "jdbc:mysql://localhost/eprescriptions";
+	
+	//these lines need to match your local mysql settings
+	static final String USER = "userme";
+	static final String PASS = "passwordme$2";
+	
 
 	public Patient(){
 		super();
+		System.out.println("Hello everyone");
+		
+		
+		Connection conn = null;
+		   Statement stmt = null;
+		   try{
+		      //STEP 2: Register JDBC driver
+		      Class.forName("com.mysql.jdbc.Driver");
+
+		      //STEP 3: Open a connection
+		      System.out.println("Connecting to a selected database...");
+		      conn = DriverManager.getConnection(DB_URL, USER, PASS);
+		      System.out.println("Connected server successfully...");
+		      
+		      
+		      
+		      
+		      
+		      
+		      System.out.println("Inserting records into the table...");
+		      stmt = conn.createStatement();
+		      
+		      //String sql = "INSERT into patientinfo " +
+		                   //"VALUES (samplePatient.getPatientID(),samplePatient.getFirstName(),samplePatient.getMiddleName(),samplePatient.getLastName(),samplePatient.getDateOfBirth(),samplePatient.getSex(),samplePatient.getStreet(),samplePatient.getCity(),samplePatient.getState(),samplePatient.getZip(),samplePatient.getHomePhoneNumber(),samplePatient.getWorkPhoneNumber(),samplePatient.getCellPhoneNumber)";
+		      //String sql = "INSERT into PATIENTINFO(patientid,firstname,middle,lastname,dob,sex,street,city,state,zip,phone_home,phone_work,phone_cell) " +
+	                   //"VALUES (0.3, 'Marla','Super','Illrson','1999-04-12','female','hi','bye','yo','900',678678,678678,678678)";
+	      
+		      
+		      
+		    //String sql = "INSERT into patientinfo(patientid,firstname,middle,lastname,dob,sex,street,city,state,zip,phone_home,phone_work,phone_cell) " +
+           //"VALUES (.3,samplePatient.getFirstName(),samplePatient.getMiddleName(),samplePatient.getLastName(),samplePatient.getDateOfBirth(),samplePatient.getSex(),samplePatient.getStreet(),samplePatient.getCity(),samplePatient.getState(),samplePatient.getZip(),samplePatient.getHomePhoneNumber(),samplePatient.getWorkPhoneNumber(),samplePatient.getCellPhoneNumber)";
+		      
+		      
+		      
+		      //stmt.executeUpdate(sql);
+		      //SELECT `patientid`, `firstname`, `middle`, `lastname`, `dob`, `sex`, `street`, `city`, `state`, `zip`, `phone_home`, `phone_work`, `phone_cell` FROM `eprescriptions`.`patientinfo`;
+
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      //PreparedStatement updateemp = conn.prepareStatement("insert into patientinfo values(?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		    	      //updateemp.setDouble(1,23.5);
+		    	      //updateemp.setString(2,"Marla");
+		    	      //updateemp.setString(3, "Super");
+		    	      //updateemp.setString(4, "Illperson");
+		    	      //updateemp.setString(5, "20150909");
+		    	      //updateemp.setString(6, "female");
+		    	      //updateemp.setString(7, samplePatient.getStreet());
+		    	      //updateemp.setString(8, samplePatient.getCity());
+		    	      //updateemp.setString(9, samplePatient.getState());
+		    	      //updateemp.setInt(10, samplePatient.getZipCode());
+		    	      //updateemp.setString(11, samplePatient.getHomePhoneNumber());
+		    	      //updateemp.setString(12, samplePatient.getWorkPhoneNumber());
+		    	      //updateemp.setString(13, samplePatient.getCellPhoneNumber());
+		    	      
+		    	      //updateemp.executeUpdate();
+		    	      
+		    	      //`sex`, `street`, `city`, `state`, `zip`, `phone_home`, `phone_work`, `phone_cell`
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		      
+		   }catch(SQLException se){
+			      //Handle errors for JDBC
+			      se.printStackTrace();
+			   }catch(Exception e){
+			      //Handle errors for Class.forName
+			      e.printStackTrace();
+			   }finally{
+			      //finally block used to close resources
+			      try{
+			         if(stmt!=null)
+			            conn.close();
+			      }catch(SQLException se){
+			      }// do nothing
+			      try{
+			         if(conn!=null)
+			            conn.close();
+			      }catch(SQLException se){
+			         se.printStackTrace();
+			      }//end finally try
+			   }//end try
+			   System.out.println("Goodbye!");
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 
 	/**
@@ -97,7 +261,7 @@ public class Patient {
 	 * @return the full name of the patient
 	 */
 	public String getFullName() {
-		return firstName + " " + lastName;
+		return firstName + "Yo middle name " + lastName;
 	}
 
 	/**
@@ -311,7 +475,7 @@ public class Patient {
 	    NodeList familyNodeList = (NodeList) family.evaluate(doc, XPathConstants.NODESET);
 	    NodeList givenNodeList = (NodeList) given.evaluate(doc, XPathConstants.NODESET);
 	    
-	     
+	    //what is this function doing? 
 	    for (int i = 0; i < familyNodeList.getLength();)
 	    {
 	    	String patientFirstName = givenNodeList.item(i).getFirstChild().getNodeValue();
