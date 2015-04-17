@@ -43,6 +43,17 @@ public class LoginServlet extends HttpServlet {
 				String FHIRResponse = getPatient(PatientID);
 				//String FHIRResponse = getPatientList();
 				session.setAttribute("PatienID", PatientID);
+				Patient myPatient = new Patient();
+				myPatient.fetchPatient(PatientID);
+				if (myPatient.isPatient()){
+					session.setAttribute("patient", myPatient);
+				}
+				else
+				{
+					throw new ServletException("Patient ID not found: " + PatientID);
+				}
+				Medication myMedication = new Medication();
+				session.setAttribute("medication", myMedication);
 				String url = "PatientDetail.jsp?id=" + PatientID; 
 				response.sendRedirect(url);
 			}

@@ -35,7 +35,7 @@
                                    <label style="font-weight: bold">UserName</label>
                                </td>
                                <td>
-                                   <input type="text" name="userName" style="width:150px;" />
+                                   <input type="text" name="userName" value="patient" style="width:150px;" />
                                </td>
                            </tr>
                            <tr>
@@ -43,7 +43,7 @@
                                    <label style="font-weight: bold">Password</label>
                                </td>
                                <td>
-                                   <input type="text" name="password" style="width:150px;" />
+                                   <input type="text" name="password" value="3.568001602-01" style="width:150px;" />
                                </td>
                            </tr>
                            <tr>

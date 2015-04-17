@@ -44,13 +44,15 @@ public class LoginServlet extends HttpServlet {
 			System.out.println("enter if");
 			try{
 				String PatientID = password;
-				String FHIRResponse = makePatientMediationRequest(PatientID);
-				session.setAttribute("pid", PatientID);
-				if (getMedicationInfo(FHIRResponse)){
+				Patient myPatient = new Patient();
+				myPatient.fetchPatient(PatientID);
+				if (myPatient.isPatient()){
+					session.setAttribute("patient", myPatient);
 					response.sendRedirect("Patient.jsp");
 				}
-				
-				
+				else{
+					//TODO: got back to login page with error message
+				}
 			}
 			catch(Exception e){
 				System.out.println(e);
@@ -70,66 +72,6 @@ public class LoginServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-	}
-	
-	/*
-	 * Takes the PatientID and searches for it using the FHIR API
-	 * Returns the xml returned by the request
-	 */
-	private String makePatientMediationRequest(String pid) throws Exception{
-		String httpsURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/" + pid + "?_format=xml";
-		URL myURL = new URL(httpsURL);
-		HttpURLConnection con = (HttpURLConnection) myURL.openConnection();
-		InputStream ins = con.getInputStream();
-        InputStreamReader isr = new InputStreamReader(ins);
-        BufferedReader in = new BufferedReader(isr);
-        StringBuilder sb = new StringBuilder();
-        String inputLine;
-        while ((inputLine = in.readLine()) != null)
-        {
-          sb.append(inputLine);
-        }
-        System.out.println("\n"+sb.toString());
-	    in.close();
-	    isr.close();
-	    ins.close();
-	    String rtnString = sb.toString();
-	    sb.delete(0, sb.length());
-	    
-	    return rtnString;
-	}
-	
-	/*
-	 * Takes the XML response from the FHIR API and parses it for the necessary information.
-	 * Sets the variables using session.SetAttribute(varName, var)
-	 */
-	private boolean getMedicationInfo (String xmlStr) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException{
-	
-		
-		InputStream inStream = new ByteArrayInputStream((xmlStr).getBytes("utf-8"));
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inStream);
-	    XPathFactory xpf = XPathFactory.newInstance();
-	    XPath xpath = xpf.newXPath(); 
-	    
-	  
-	    XPathExpression family = xpath.compile( "/Patient/name/family/@value" );
-	    XPathExpression given= xpath.compile( "/Patient/name/given/@value" );
-	    NodeList familyNodeList = (NodeList) family.evaluate(doc, XPathConstants.NODESET);
-	    NodeList givenNodeList = (NodeList) given.evaluate(doc, XPathConstants.NODESET);
-	    
-	    Patient tmpPatient = new Patient();
-	     
-	    for (int i = 0; i < familyNodeList.getLength(); i++)
-	    {
-	    	String patientFirstName = givenNodeList.item(i).getFirstChild().getNodeValue();
-	    	String patientLastName = familyNodeList.item(i).getFirstChild().getNodeValue();
-	    	tmpPatient.setFirstName(patientFirstName);
-	    	tmpPatient.setLastName(patientLastName);
-	    	session.setAttribute("patient", tmpPatient);
-	    	return true;
-	    }
-	    return false;
-		
 	}
 
 }

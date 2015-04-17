@@ -12,7 +12,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.json.JSONObject;
+
+import gatech.cs6440.project.Patient;
 
 /**
  * Servlet implementation class PatientInfo
@@ -20,7 +24,8 @@ import org.json.JSONObject;
 @WebServlet("/PatientInfo")
 public class PatientInfo extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+	private HttpSession session;
+
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -35,10 +40,18 @@ public class PatientInfo extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try
 		{
+			session = request.getSession(true);
 			String PatientID = (String)request.getParameter("id");
-			String FHIRResponse = getPatient(PatientID);
-			response.setContentType("text/xml;charset=UTF-8");
-			response.getWriter().write(FHIRResponse);
+			Patient myPatient = new Patient();
+			myPatient.fetchPatient(PatientID);
+			if (myPatient.isPatient()){
+				session.setAttribute("patient", myPatient);
+				//response.sendRedirect("Patient.jsp");
+				
+			}
+			else{
+				//TODO: got back to login page with error message
+			}
 		}
 		catch (Exception e)
 		{
@@ -54,20 +67,4 @@ public class PatientInfo extends HttpServlet {
 		// TODO Auto-generated method stub
 	}
 
-	private String getPatient(String id) throws Exception{
-		String sURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/3.666643100-01?_format=xml";
-		URL myURL = new URL(sURL);
-		HttpURLConnection con = (HttpURLConnection) myURL.openConnection();
-		InputStream ins = con.getInputStream();
-		InputStreamReader isr = new InputStreamReader(ins);
-		BufferedReader in = new BufferedReader(isr);
-		StringBuilder sb = new StringBuilder();
-		String inputLine;
-		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-		while ((inputLine = in.readLine()) != null)
-		{
-			sb.append(inputLine);
-		}
-		return sb.toString();
-	}
 }

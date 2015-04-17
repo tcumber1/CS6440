@@ -1,4 +1,4 @@
-package com.eprescription.web.app;
+package gatech.cs6440.project;
 
 
 public class Problem {

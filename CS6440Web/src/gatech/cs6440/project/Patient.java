@@ -1,4 +1,4 @@
-package com.eprescription.web.app;
+package gatech.cs6440.project;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
