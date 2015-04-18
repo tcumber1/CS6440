@@ -5,7 +5,11 @@
     import = "gatech.cs6440.project.Allergy"
     import = "gatech.cs6440.project.Observation"
     import = "gatech.cs6440.project.Problem"
+    import = "org.json.simple.*"
+	import = "org.json.simple.parser.*"
+	import = "java.util.ArrayList"
     %>
+
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -15,9 +19,10 @@
 <link rel="stylesheet" type="text/css" href="CS6440Web.css" media="screen" />
 </head>
 <script src="http://code.jquery.com/jquery-latest.js"></script>
-<script>
+<script >
 $(document).ready(function () {
 	
+	BuildProblemTable();
 });
 
 function OnInitLoad() {
@@ -58,14 +63,20 @@ function GetURLParameter(sParam){
 	    }
 }
 
+function BuildProblemTable() {
+	alert("Here");
+	var arr = (ArrayList)"<%= session.getAttribute("problemList") %>";
+	for (var i = 0; i< arr.size(); i++ ){
+		alert("diagnosis = " + arr.get(i));
+	}
+}
 </script>
 
 <body>
 <div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:20px;"></div>
 	<form action="PatientInfo">
-<% Patient currentPatient = (Patient) session.getAttribute("patient");%>	
-<% Medication currentMedication = (Medication) session.getAttribute("medication");%>	
-
+	<% Patient currentPatient = (Patient) session.getAttribute("patient");%>	
+	<% Medication currentMedication = (Medication) session.getAttribute("medication");%>	
 		<div style="text-align:center; width:100%; float:left; padding-right:0px;">
 			<h1>Patient View</h1>
 		</div>
@@ -122,7 +133,7 @@ function GetURLParameter(sParam){
 								<input type="button" id="btnAllergies" onclick="OnInitLoad();" value="Allergies">
 							</div>
 							<div style="padding-bottom:10px;">
-								<input type="button" id="btnHome" onclick="OnInitLoad();" value="Home">
+								<a href = "Login.jsp" style="text-decoration: none"><input type="button" id="btnHome" value="Home"></a>
 							</div>
 						</div>
 					</td>
@@ -152,7 +163,7 @@ function GetURLParameter(sParam){
 														<th style="width:30%; text-align:left; border-bottom: 1px solid;">Value</th>
 														<th style="width:30%; text-align:left; border-bottom: 1px solid;">Date</th>
 													</tr>
-												</table>
+																									</table>
 											</div>
 										</div>
 									</td>

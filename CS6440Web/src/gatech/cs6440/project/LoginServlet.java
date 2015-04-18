@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -40,11 +41,9 @@ public class LoginServlet extends HttpServlet {
 			try
 			{
 				String PatientID = (String)request.getParameter("password");
-				String FHIRResponse = getPatient(PatientID);
-				//String FHIRResponse = getPatientList();
-				session.setAttribute("PatienID", PatientID);
 				Patient myPatient = new Patient();
-				myPatient.fetchPatient(PatientID);
+				DataAccess da = new DataAccess();
+				myPatient = da.getPatient(PatientID);
 				if (myPatient.isPatient()){
 					session.setAttribute("patient", myPatient);
 				}
@@ -54,6 +53,9 @@ public class LoginServlet extends HttpServlet {
 				}
 				Medication myMedication = new Medication();
 				session.setAttribute("medication", myMedication);
+				ArrayList<Problem> probList =  new ArrayList<Problem>();
+				probList = da.getProblemInfo(PatientID);
+				session.setAttribute("problemList", probList);
 				String url = "PatientDetail.jsp?id=" + PatientID; 
 				response.sendRedirect(url);
 			}
@@ -72,36 +74,6 @@ public class LoginServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 	}
 	
-	private String getPatientList() throws Exception{
-		String sURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient?_count=10&_format=json";
-		URL myURL = new URL(sURL);
-		HttpURLConnection con = (HttpURLConnection) myURL.openConnection();
-		InputStream ins = con.getInputStream();
-		InputStreamReader isr = new InputStreamReader(ins);
-		BufferedReader in = new BufferedReader(isr);
-		StringBuilder sb = new StringBuilder();
-		String inputLine;
-		while ((inputLine = in.readLine()) != null)
-		{
-			sb.append(inputLine);
-		}
-		return sb.toString();
-	
-	}
-	private String getPatient(String id) throws Exception{
-		String sURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/3.666643100-01?_format=json";
-		URL myURL = new URL(sURL);
-		HttpURLConnection con = (HttpURLConnection) myURL.openConnection();
-		InputStream ins = con.getInputStream();
-		InputStreamReader isr = new InputStreamReader(ins);
-		BufferedReader in = new BufferedReader(isr);
-		StringBuilder sb = new StringBuilder();
-		String inputLine;
-		while ((inputLine = in.readLine()) != null)
-		{
-			sb.append(inputLine);
-		}
-		return sb.toString();
-	}
+
 
 }
