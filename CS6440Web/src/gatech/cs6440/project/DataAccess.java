@@ -1,4 +1,5 @@
-package com.eprescription.web.app;
+package gatech.cs6440.project;
+
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -20,22 +21,23 @@ import org.w3c.dom.NodeList;
 
 
 
+
+
+//these are for the database connection
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.io.*;
+import java.net.*;
+import java.sql.*;
+
 import org.json.simple.*;
 import org.json.simple.parser.*;
 
-public class Patient {
-	
-	private static String patientID;
-	private static String firstName;
-	private static String lastName;
-	private static String phoneNumber;
-	private static String street;
-	private static String city;
-	private static int zipCode;
-	private static String state;
-	private static String sex;
-	private static String dateOfBirth;
-	private static boolean isPatient;
+public class DataAccess {
+
 	private static ArrayList<Observation> myObservations;
 	private static ArrayList<Problem> myProblems;
 	private static ArrayList<Allergy> myAllergies;
@@ -46,226 +48,21 @@ public class Patient {
 	private final static String jsonFormatURL = "&_format=json";
 	private final static String xmlFormatURL = "?_format=xml";
 	
-
-	public Patient(){
-		super();
-	}
-
-	/**
-	 * @return the patientID
-	 */
-	public String getPatientID() {
-		return patientID;
-	}
-
-	/**
-	 * @param patientID the patientID to set
-	 */
-	public void setPatientID(String newPatientID) {
-		patientID = newPatientID;
-	}
-
-	/**
-	 * @return the firstName
-	 */
-	public String getFirstName() {
-		return firstName;
-	}
-
-	/**
-	 * @param firstName the firstName to set
-	 */
-	public void setFirstName(String newFirstName) {
-		firstName = newFirstName;
-	}
-
-	/**
-	 * @return the lastName
-	 */
-	public String getLastName() {
-		return lastName;
-	}
-
-	/**
-	 * @param lastName the lastName to set
-	 */
-	public void setLastName(String newLastName) {
-		lastName = newLastName;
-	}
 	
-	/**
-	 * @return the full name of the patient
-	 */
-	public String getFullName() {
-		return firstName + " " + lastName;
-	}
-
-	/**
-	 * @return the phoneNumber
-	 */
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
-
-	/**
-	 * @param phoneNumber the phoneNumber to set
-	 */
-	public void setPhoneNumber(String newPhoneNumber) {
-		phoneNumber = newPhoneNumber;
-	}
-
-	/**
-	 * @return the street
-	 */
-	public String getStreet() {
-		return street;
-	}
-
-	/**
-	 * @param street the street to set
-	 */
-	public void setStreet(String newStreet) {
-		street = newStreet;
-	}
-
-	/**
-	 * @return the city
-	 */
-	public String getCity() {
-		return city;
-	}
-
-	/**
-	 * @param city the city to set
-	 */
-	public void setCity(String newCity) {
-		city = newCity;
-	}
-
-	/**
-	 * @return the zipCode
-	 */
-	public int getZipCode() {
-		return zipCode;
-	}
-
-	/**
-	 * @param zipCode the zipCode to set
-	 */
-	public void setZipCode(int newZipCode) {
-		zipCode = newZipCode;
-	}
-
-	/**
-	 * @return the state
-	 */
-	public String getState() {
-		return state;
-	}
-
-	/**
-	 * @param state the state to set
-	 */
-	public void setState(String newState) {
-		state = newState;
-	}
+	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
+	static final String DB_URL = "jdbc:mysql://localhost/eprescriptions";
 	
-	/**
-	 * @return the full address
-	 */
-	public String getAddres() {
-		return street + ", " + city + ", " + state + " " + zipCode;
-	}
-
-	/**
-	 * @return the sex
-	 */
-	public String getSex() {
-		return sex;
-	}
-
-	/**
-	 * @param sex the sex to set
-	 */
-	public void setSex(String newSex) {
-		sex = newSex;
-	}
-
-	/**
-	 * @return the dateOfBirth
-	 */
-	public String getDateOfBirth() {
-		return dateOfBirth;
-	}
-
-	/**
-	 * @param dateOfBirth the dateOfBirth to set
-	 */
-	public void setDateOfBirth(String newDateOfBirth) {
-		dateOfBirth = newDateOfBirth;
-	}
+	//these lines need to match your local mysql settings
+	private String USER = "userme";
+	private String PASS = "passwordme$2";
 	
-	/**
-	 * @return the isPatient
-	 */
-	public boolean isPatient() {
-		return isPatient;
+	public DataAccess()
+	{
+		
 	}
-
-	/**
-	 * @param isPatient the isPatient to set
-	 */
-	public void setIsPatient(boolean newIsPatient) {
-		isPatient = newIsPatient;
-	}
-	
-	/**
-	 * @return the myObservations
-	 */
-	public ArrayList<Observation> getMyObservations() {
-		return myObservations;
-	}
-
-	/**
-	 * @param myObservations the myObservations to set
-	 */
-	public void setMyObservations(ArrayList<Observation> newMyObservations) {
-		myObservations = newMyObservations;
-	}
-
-	/**
-	 * @return the myProblems
-	 */
-	public ArrayList<Problem> getMyProblems() {
-		return myProblems;
-	}
-
-	/**
-	 * @param myProblems the myProblems to set
-	 */
-	public void setMyProblems(ArrayList<Problem> newMyProblems) {
-		myProblems = newMyProblems;
-	}
-
-	/**
-	 * @return the myAllergies
-	 */
-	public ArrayList<Allergy> getMyAllergies() {
-		return myAllergies;
-	}
-
-	/**
-	 * @param myAllergies the myAllergies to set
-	 */
-	public void setMyAllergies(ArrayList<Allergy> newMyAllergies) {
-		myAllergies = newMyAllergies;
-	}
-	
-	public void fetchPatient(String PatientID) throws Exception{
-		patientID = PatientID;
-		getPatientInfo();		
-		getObservationInfo();
-		getProblemInfo();
+	public DataAccess(String username, String pwd){
+		USER = username;
+		PASS = pwd;
 	}
 	
 	/*
@@ -297,7 +94,7 @@ public class Patient {
 	/*
 	 * Takes the XML response from the FHIR API and parses it for the necessary information.
 	 */
-	private static void getPatientInfo () throws Exception{
+	public Patient getPatient(String patientID) throws Exception{
 		String xmlStr = makeRequest(patientURL, patientID, xmlFormatURL);
 		
 		InputStream inStream = new ByteArrayInputStream((xmlStr).getBytes("utf-8"));
@@ -311,21 +108,58 @@ public class Patient {
 	    NodeList familyNodeList = (NodeList) family.evaluate(doc, XPathConstants.NODESET);
 	    NodeList givenNodeList = (NodeList) given.evaluate(doc, XPathConstants.NODESET);
 	    
-	     
-	    for (int i = 0; i < familyNodeList.getLength();)
-	    {
-	    	String patientFirstName = givenNodeList.item(i).getFirstChild().getNodeValue();
-	    	String patientLastName = familyNodeList.item(i).getFirstChild().getNodeValue();
-	    	firstName = patientFirstName;
-	    	lastName = patientLastName;
-	    	isPatient = true;
-	    	return;
-	    }
-	    isPatient = false;
+	    Patient pat = new Patient();
+	    //what is this function doing? 
+	    	pat.setFirstName(givenNodeList.item(0).getFirstChild().getNodeValue() );
+	    	pat.setLastName(familyNodeList.item(0).getFirstChild().getNodeValue() );
+	    	pat.setIsPatient(true); 
+	    	
+	    	return pat;
 	}
 	
+	public static Patient getPatientInfo (String patientID) throws Exception{
+		String xmlStr = makeRequest(patientURL, patientID, xmlFormatURL);
+		
+		InputStream inStream = new ByteArrayInputStream((xmlStr).getBytes("utf-8"));
+		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inStream);
+	    XPathFactory xpf = XPathFactory.newInstance();
+	    XPath xpath = xpf.newXPath(); 
+	    
+	  
+	    XPathExpression family = xpath.compile( "/Patient/name/family/@value" );
+	    XPathExpression given= xpath.compile( "/Patient/name/given/@value" );
+	    NodeList familyNodeList = (NodeList) family.evaluate(doc, XPathConstants.NODESET);
+	    NodeList givenNodeList = (NodeList) given.evaluate(doc, XPathConstants.NODESET);
+	    
+	    Patient pat = new Patient();
+	    //what is this function doing? 
+	    	pat.setFirstName(givenNodeList.item(0).getFirstChild().getNodeValue() );
+	    	pat.setFirstName(familyNodeList.item(0).getFirstChild().getNodeValue() );
+	    	pat.setIsPatient(true); 
+	    	
+	    	return pat;
+	}
 	
-	private static void getObservationInfo() throws Exception{
+	// Currently not used
+	public String getPatientList() throws Exception{
+		String sURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient?_count=10&_format=json";
+		URL myURL = new URL(sURL);
+		HttpURLConnection con = (HttpURLConnection) myURL.openConnection();
+		InputStream ins = con.getInputStream();
+		InputStreamReader isr = new InputStreamReader(ins);
+		BufferedReader in = new BufferedReader(isr);
+		StringBuilder sb = new StringBuilder();
+		String inputLine;
+		while ((inputLine = in.readLine()) != null)
+		{
+			sb.append(inputLine);
+		}
+		return sb.toString();
+	
+	}
+	
+	public static ArrayList<Observation> getObservationInfo(String patientID) throws Exception{
+		
 		String xmlStr = makeRequest(observationURL, patientID, jsonFormatURL);
 		myObservations = new ArrayList<Observation> ();
 		
@@ -369,9 +203,11 @@ public class Patient {
 		  	}
 		  	myObservations.add(ob);
 		} //end while i2
+		
+		return myObservations;
 	}
 	
-	private static void getProblemInfo() throws Exception{
+	public ArrayList<Problem> getProblemInfo(String patientID) throws Exception{
 		String xmlStr = makeRequest(problemURL, patientID, jsonFormatURL);
 		myProblems = new ArrayList<Problem>();
 		
@@ -405,7 +241,8 @@ public class Patient {
 		  	}
 		  	myProblems.add(prob);
 		} //end while i2
+		
+		return myProblems;
 	}
+	
 }
-
-

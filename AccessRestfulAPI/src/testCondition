@@ -1,0 +1,94 @@
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.TimeZone;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+public class testCondition {
+
+    public static void main(String[] args) throws Exception
+    {
+    	
+    String httpsURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Condition?subject:Patient=3.666867671-01&_format=json";
+  	
+    URL myurl = new URL(httpsURL);
+    HttpURLConnection con = (HttpURLConnection)myurl.openConnection();
+    InputStream ins = con.getInputStream();
+    InputStreamReader isr = new InputStreamReader(ins);
+    BufferedReader in = new BufferedReader(isr);
+    StringBuilder sb = new StringBuilder();
+    String inputLine;
+ 
+    while ((inputLine = in.readLine()) != null)
+    {
+      sb.append(inputLine);
+    }
+   System.out.println("\n"+sb.toString());
+	  
+	
+  InputStream inStream = new ByteArrayInputStream((sb.toString().getBytes("utf-8")));
+  InputStreamReader reader = new InputStreamReader(inStream);
+  JSONParser jsonParser = new JSONParser();
+  JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
+  
+  String firstName = (String) jsonObject.get("published");  	
+  System.out.println("\n published "+ firstName);   	
+  
+ JSONArray lang= (JSONArray) jsonObject.get("entry");
+
+ /*
+  for(int i=0; i<lang.size(); i++){
+	  System.out.println("\n The " + i + " element of the entry array: "+lang.get(i));
+  } 
+  
+  */
+	
+  
+Iterator<?> i2 = lang.iterator(); 
+  while (i2.hasNext()) {
+        JSONObject innerObj = (JSONObject) i2.next();
+ 	    System.out.println("title "+ innerObj.get("title"));
+ 	   
+ 	    System.out.println(" with published " + innerObj.get("published"));
+ 	   JSONObject structure = (JSONObject) innerObj.get("content");
+ 	   System.out.println(" with innerObj " + structure.get("code") ); 
+ 	  JSONObject structure1 = (JSONObject) structure.get("code");
+ 	 JSONArray lang1= (JSONArray) structure1.get("coding");
+ 	Iterator<?>   i3 = lang1.iterator();
+ 			while (i3.hasNext()) 
+ 			{
+ 				JSONObject innerObj1 = (JSONObject) i3.next();
+ 				System.out.println("system"+ innerObj1.get("system"));
+ 				System.out.println("code"+ innerObj1.get("code"));
+ 				System.out.println("display"+ innerObj1.get("display"));
+ 			}
+ 			System.out.println("status "+ structure.get("status"));  
+ 			//System.out.println("on set date "+ structure.get("onsetDate"));  
+
+ 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+ 			Date result;
+ 		    result = df.parse(structure.get("onsetDate").toString());
+ 		   SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy");
+ 		   //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+ 		    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+ 			    System.out.println("onsetdate " + sdf.format(result)); //prints date in the format sdf
+  
+  	}
+	
+ 	   
+  }
+
+} 
+		
+	
+

@@ -11,7 +11,7 @@
 <body>
 
 The PatientID entered was <%=session.getAttribute("pid") %>
- <% Patient currentPatient = new Patient((session.getAttribute("patient")));%>
+ <% Patient currentPatient = (Patient) session.getAttribute("patient");%>
 The full name for the patient was <%=currentPatient.getFullName()%>
 
 </body>

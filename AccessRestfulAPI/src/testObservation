@@ -1,0 +1,58 @@
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Iterator;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+
+public class testObservation {
+
+    public static void main(String[] args) throws Exception
+    {
+    	
+    String httpsURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Observation?subject:Patient=3.666867671-01&_format=json";
+  	
+    URL myurl = new URL(httpsURL);
+    HttpURLConnection con = (HttpURLConnection)myurl.openConnection();
+    InputStream ins = con.getInputStream();
+    InputStreamReader isr = new InputStreamReader(ins);
+    BufferedReader in = new BufferedReader(isr);
+    StringBuilder sb = new StringBuilder();
+    String inputLine;
+ 
+    while ((inputLine = in.readLine()) != null)
+    {
+      sb.append(inputLine);
+    }
+   System.out.println("\n"+sb.toString());
+	
+   InputStream inStream = new ByteArrayInputStream((sb.toString().getBytes("utf-8")));
+   InputStreamReader reader = new InputStreamReader(inStream);
+   JSONParser jsonParser = new JSONParser();
+   JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
+   JSONArray lang= (JSONArray) jsonObject.get("entry");
+   Iterator<?> i2 = lang.iterator(); 
+ 
+		   while (i2.hasNext()) {
+		      JSONObject innerObj = (JSONObject) i2.next();
+		  	  System.out.println("title "+ innerObj.get("title"));
+		  	//System.out.println("content "+ innerObj.get("content"));
+		  	JSONObject structure = (JSONObject) innerObj.get("content");
+		  	//System.out.println("Into text structure, name: " + structure.get("text"));
+		  	JSONObject structure1 = (JSONObject) structure.get("text");
+		  	//System.out.println("Into div structure, name: " + structure1.get("div").toString().replaceAll("[<](/)?div[^>]*[>]", ""));
+		  	System.out.println("" + structure1.get("div").toString().replaceAll("[<](/)?div[^>]*[>]", ""));
+		  	
+		  	
+		   } //end while i2
+		   
+
+	
+    }//end main	
+}

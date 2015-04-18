@@ -1,0 +1,50 @@
+@CHARSET "ISO-8859-1";
+
+a:link{
+	color:white;
+}
+a:visited{
+	color:yellow;
+}
+#divLogin{
+	vertical-align: middle;
+	width:500px; 
+	margin:0 auto;
+	padding-top:200px;
+	float:left;
+	align:center;
+}
+#divLogin img{
+	opacity: 0.6;
+	filter: alpha(opacity=60);
+}
+.divPatientHeader{
+	float:left; 
+	width:95%; 
+	border-bottom: solid 2px; 
+	background-color : #56A5E7; 
+	border-radius: 25px;
+	background: #56A5E7; 
+	padding: 5px; 
+	height: 120px; 
+	margin:10px;"
+}
+.divPatientHeader label {
+	color:black;
+	font-size:18px;
+	
+}
+.divPatientHeader table label {
+	color:black;
+	font-size:18px;
+	
+}
+.divPatient input[type="button"]{
+	color:black;
+	font:3.4em Futura, sans-serif;
+	font-size:100%;
+	padding:14px;
+	background-color:#6699ff;
+	border: none;	
+	width:150px;
+}

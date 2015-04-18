@@ -1,13 +1,13 @@
-package com.eprescription.web.app;
+package gatech.cs6440.project;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import javax.xml.parsers.DocumentBuilderFactory;   
-import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.*;
-import org.xml.sax.SAXException;
-import javax.xml.xpath.*;
+import java.util.ArrayList;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,15 +15,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-
 /**
  * Servlet implementation class LoginServlet
  */
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private HttpSession session;
-       
+    private HttpSession session;
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -38,32 +36,34 @@ public class LoginServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		session = request.getSession(true);
-		String username = request.getParameter("un");
-		String password = request.getParameter("pw");
-		if (username.equalsIgnoreCase("Patient")){
-			System.out.println("enter if");
-			try{
-				String PatientID = password;
+		if (request.getParameter("userName").trim().toUpperCase().equals("PATIENT"))
+		{
+			try
+			{
+				String PatientID = (String)request.getParameter("password");
 				Patient myPatient = new Patient();
-				myPatient.fetchPatient(PatientID);
+				DataAccess da = new DataAccess();
+				myPatient = da.getPatient(PatientID);
 				if (myPatient.isPatient()){
 					session.setAttribute("patient", myPatient);
-					response.sendRedirect("Patient.jsp");
 				}
-				else{
-					//TODO: got back to login page with error message
+				else
+				{
+					throw new ServletException("Patient ID not found: " + PatientID);
 				}
+				Medication myMedication = new Medication();
+				session.setAttribute("medication", myMedication);
+				ArrayList<Problem> probList =  new ArrayList<Problem>();
+				probList = da.getProblemInfo(PatientID);
+				session.setAttribute("problemList", probList);
+				String url = "PatientDetail.jsp?id=" + PatientID; 
+				response.sendRedirect(url);
 			}
-			catch(Exception e){
-				System.out.println(e);
+			catch (Exception e)
+			{
+				//System.out.println(e);
+				throw new ServletException(e);
 			}
-		}
-		else if (username.equalsIgnoreCase("Doctor") && password.equalsIgnoreCase("Doctor")){
-			// TODO go to doctor page
-		}
-		
-		else if (username.equalsIgnoreCase("Pharmacist") && password.equalsIgnoreCase("Pharmacist")){
-			// TODO go to pharmacist page
 		}
 	}
 
@@ -73,5 +73,7 @@ public class LoginServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 	}
+	
+
 
 }
