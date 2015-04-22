@@ -4,9 +4,9 @@ public class Medication {
 	
 	private String name;
 	private String dosageInstructions;
-	private String dosageSize;
-	private String dosageQuantity;
-	private String refills;
+	private int numPills;
+	private String doseQuantity;
+	private int refills;
 	private String prescriber;
 	private String dateWritten;
 	private String NDC;
@@ -46,42 +46,42 @@ public class Medication {
 	/**
 	 * @return the dosageSize
 	 */
-	public String getDosageSize() {
-		return dosageSize;
+	public int getNumPills() {
+		return numPills;
 	}
 
 	/**
 	 * @param dosageSize the dosageSize to set
 	 */
-	public void setDosageSize(String dosageSize) {
-		this.dosageSize = dosageSize;
+	public void setNumPills(int numPills) {
+		this.numPills = numPills;
 	}
 
 	/**
 	 * @return the dosageQuantity
 	 */
-	public String getDosageQuantity() {
-		return dosageQuantity;
+	public String getDoseQuantity() {
+		return doseQuantity;
 	}
 
 	/**
 	 * @param dosageQuantity the dosageQuantity to set
 	 */
-	public void setDosageQuantity(String dosageQuantity) {
-		this.dosageQuantity = dosageQuantity;
+	public void setDoseQuantity(String doseQuantity) {
+		this.doseQuantity = doseQuantity;
 	}
 
 	/**
 	 * @return the refills
 	 */
-	public String getRefills() {
+	public int getRefills() {
 		return refills;
 	}
 
 	/**
 	 * @param refills the refills to set
 	 */
-	public void setRefills(String refills) {
+	public void setRefills(int refills) {
 		this.refills = refills;
 	}
 

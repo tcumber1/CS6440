@@ -36,13 +36,16 @@ public class Patient {
 	private static String sex;
 	private static String dateOfBirth;
 	private static boolean isPatient;
+	private static String image;
 	private static ArrayList<Observation> myObservations;
 	private static ArrayList<Problem> myProblems;
 	private static ArrayList<Allergy> myAllergies;
+	private static ArrayList<Medication> myMedications;
 	
 	private final static String patientURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/";
 	private final static String problemURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Condition?subject:Patient=";
 	private final static String observationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Observation?subject:Patient=";
+	private final static String medicationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/MedicationPrescription?subject._id=";
 	private final static String jsonFormatURL = "&_format=json";
 	private final static String xmlFormatURL = "?_format=xml";
 	
@@ -220,6 +223,20 @@ public class Patient {
 	}
 	
 	/**
+	 * @return the image
+	 */
+	public static String getImage() {
+		return image;
+	}
+	
+	/**
+	 * @param image the image to set
+	 */
+	public static void setImage(String newImage) {
+		image = newImage;
+	}
+
+	/**
 	 * @return the myObservations
 	 */
 	public ArrayList<Observation> getMyObservations() {
@@ -261,11 +278,26 @@ public class Patient {
 		myAllergies = newMyAllergies;
 	}
 	
+	/**
+	 * @return the myMedications
+	 */
+	public static ArrayList<Medication> getMyMedications() {
+		return myMedications;
+	}
+
+	/**
+	 * @param myMedications the myMedications to set
+	 */
+	public static void setMyMedications(ArrayList<Medication> myMedications) {
+		Patient.myMedications = myMedications;
+	}
+
 	public void fetchPatient(String PatientID) throws Exception{
 		patientID = PatientID;
 		getPatientInfo();		
 		getObservationInfo();
 		getProblemInfo();
+		getMedicationInfo();
 	}
 	
 	/*
@@ -352,8 +384,9 @@ public class Patient {
 		  		}
 		  	}
 		  	
-		  	String date = content.get("appliesDateTime").toString(); //TODO: Format to look pretty
-		  	ob.setDate(date);
+		  	String date = content.get("appliesDateTime").toString();
+		  	String updateDate = date.substring(0, date.indexOf('T'));
+		  	ob.setDate(updateDate);
 		  	
 		  	JSONObject valueQuantity = (JSONObject) content.get("valueQuantity");
 		  	if (valueQuantity != null){
@@ -389,8 +422,9 @@ public class Patient {
 		  	
 		  	String status = content.get("status").toString();
 		  	prob.setStatus(status);
-		  	String date = content.get("onsetDate").toString();
-		  	prob.setOnSetDate(date);
+		  	String date = content.get("onsetDate").toString(); 
+		  	String updateDate = date.substring(0, date.indexOf('T'));
+		  	prob.setOnSetDate(updateDate);
 		  	
 		  	JSONObject code = (JSONObject) content.get("code");
 		  	JSONArray coding = (JSONArray) code.get("coding");
@@ -404,6 +438,88 @@ public class Patient {
 		  		}
 		  	}
 		  	myProblems.add(prob);
+		} //end while i2
+	}
+	
+	private static void getMedicationInfo() throws Exception{
+		String xmlStr = makeRequest(medicationURL, patientID, jsonFormatURL);
+		myMedications = new ArrayList<Medication>();
+		
+		InputStream inStream = new ByteArrayInputStream((xmlStr.getBytes("utf-8")));
+		InputStreamReader reader = new InputStreamReader(inStream);
+		JSONParser jsonParser = new JSONParser();
+		JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
+		JSONArray lang= (JSONArray) jsonObject.get("entry");
+		Iterator<?> i2 = lang.iterator();
+		
+		while(i2.hasNext()){
+			Medication med = new Medication();
+			JSONObject innerObj = (JSONObject) i2.next();
+		  	JSONObject content = (JSONObject) innerObj.get("content");
+		  	
+		  	String dateWritten = content.get("dateWritten").toString();
+		  	String updateDateWritten = dateWritten.substring(0, dateWritten.indexOf('T'));
+		  	med.setDateWritten(updateDateWritten);
+		  	
+		  	JSONObject prescriber = (JSONObject) content.get("prescriber");
+		  	String display = prescriber.get("display").toString();
+		  	med.setPrescriber(display);
+		  	
+		  	JSONObject medication = (JSONObject) content.get("medication");
+		  	String medDisplay = medication.get("display").toString();
+		  	med.setName(medDisplay);
+		  	
+		  	JSONObject dispense = (JSONObject) content.get("dispense");
+		  	long lRefills = (long) dispense.get("numberOfRepeatsAllowed");
+		  	int refills = (int) lRefills ;
+		  	med.setRefills(refills);
+		  	
+		  	JSONObject quantity = (JSONObject) dispense.get("quantity");
+		  	double dValue = (double) quantity.get("value");
+		  	int iValue = (int) dValue;
+		  	med.setNumPills(iValue);
+		  	
+		  	
+		  	JSONArray dosageInstruction = (JSONArray) content.get("dosageInstruction");
+		  	Iterator<?> dosageIns = dosageInstruction.iterator();
+		  	
+		  	while (dosageIns.hasNext()){
+		  		JSONObject dosage = (JSONObject) dosageIns.next();
+		  		String text = dosage.get("text").toString();
+		  		med.setDosageInstructions(text);
+		  		
+		  		JSONObject doseQuantity = (JSONObject) dosage.get("doseQuantity");
+		  		if (doseQuantity != null){
+				  	Object value = doseQuantity.get("value");
+				  	Object units = doseQuantity.get("units");
+				  	if (units == null){
+				  		units = "";
+				  	}
+				  	if(value == null){
+				  		value = "";
+				  	}
+				  	med.setDoseQuantity(value.toString() + " " + units.toString());
+			  	}
+		  	}//end while dosageIns
+		  	
+		  	JSONArray jContained = (JSONArray) content.get("contained");
+		  	Iterator<?> iContained = jContained.iterator();
+		  	
+		  	while(iContained.hasNext()){
+		  		JSONObject contained = (JSONObject) iContained.next();
+		  		JSONObject code = (JSONObject) contained.get("code");
+		  		
+		  		JSONArray jCoding = (JSONArray) code.get("coding");
+		  		Iterator<?> iCoding = jCoding.iterator();
+		  		
+		  		while(iCoding.hasNext()){
+		  			JSONObject coding = (JSONObject) iCoding.next();
+		  			String packageNDC = coding.get("code").toString();
+		  			String productNDC = packageNDC.substring(0, packageNDC.lastIndexOf('-'));
+		  			med.setNDC(productNDC);
+		  		}//end while iCoding
+		  	}//end while iCotained
+		  	myMedications.add(med);
 		} //end while i2
 	}
 }
