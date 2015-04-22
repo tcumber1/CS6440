@@ -84,10 +84,10 @@
 		            function(row) 
 		            {
 		                return function() { 
-		                   var cell = row.getElementsByTagName("td")[0];
-		                   var id = cell.innerHTML;
-		                   alert("id:" + id);
-		                   //TODO: Add code to populate textboxes
+		                   document.getElementById("drugNDC").value = row.getElementsID("NDC").value;
+		                   document.getElementById("drugName").value = row.getElementsID("name").value;
+		                   document.getElementById("drugMethod").value = row.getElementsID("dosageForm").value;
+		                   document.getElementById("drugDosage").value = row.getElementsID("dosage").value;
 		                 };
 		            };
 		
@@ -103,9 +103,9 @@
 				<tr><td>Drug NDC:</td><td><input type="text" name="drugNDC" id="drugNDC" disabled="disabled"></td></tr>
 				<tr><td>Drug name:</td><td><input type="text" name="drugName" id="drugName" disabled="disabled"></td></tr>
 				<tr><td>Method:</td><td><input type="text" name="drugMethod" id="drugMethod" disabled="disabled"></td></tr>
-				<tr><td>Size:</td><td><input type="text" name="drugSize" id="drugSize" disabled="disabled"></td></tr>
+				<tr><td>Size:</td><td><input type="text" name="drugDosage" id="drugSize" disabled="disabled"></td></tr>
 				<tr><td>Amount:</td><td><input type="text" name="drugAmount" id="drugAmount"></td></tr>
-				<tr><td></td><td><input type="submit" id="btnCreatePrescription" value="Create" /></td></tr>
+				<tr><td></td><td><button>Create</button></td></tr>
 			</tbody>
 		</table>
 	</div>
