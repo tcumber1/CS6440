@@ -51,11 +51,17 @@ public class LoginServlet extends HttpServlet {
 				{
 					throw new ServletException("Patient ID not found: " + PatientID);
 				}
-				Medication myMedication = new Medication();
-				session.setAttribute("medication", myMedication);
+				ArrayList<Medication> medList = new ArrayList<Medication>();
+				medList = da.getMedicationInfo(PatientID);
+				
+				session.setAttribute("medicationList", medList);
 				ArrayList<Problem> probList =  new ArrayList<Problem>();
 				probList = da.getProblemInfo(PatientID);
 				session.setAttribute("problemList", probList);
+
+				ArrayList<Observation> obList =  new ArrayList<Observation>();
+				obList = da.getObservationInfo(PatientID);
+				session.setAttribute("ObservationList", obList);
 				String url = "PatientDetail.jsp?id=" + PatientID; 
 				response.sendRedirect(url);
 			}

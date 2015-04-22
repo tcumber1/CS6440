@@ -21,13 +21,11 @@
 <script src="http://code.jquery.com/jquery-latest.js"></script>
 <script >
 $(document).ready(function () {
-	
-	BuildProblemTable();
+	OnSummary();
 });
 
 function OnInitLoad() {
 	var patID = GetURLParameter("id");
-	alert("Here");
 	var url = "https://taurus.i3l.gatech.edu:8443//HealthPort/fhir/Patient/";
 	url = url + patID;
 	
@@ -63,20 +61,66 @@ function GetURLParameter(sParam){
 	    }
 }
 
-function BuildProblemTable() {
-	alert("Here");
-	var arr = (ArrayList)"<%= session.getAttribute("problemList") %>";
-	for (var i = 0; i< arr.size(); i++ ){
-		alert("diagnosis = " + arr.get(i));
-	}
+function OnHome() {
+	window.location.href = "Login.jsp";
+}
+
+function OnSummary() {
+	OnResetAll();
+	//$("#divSummary").css("display", "inline-block");
+	$("#divProblemsObservation").css("display", "inline-block");
+	$("#divMedication").css("display", "inline-block");
+	$("#divAlergies").css("display", "inline-block");
+	$("#divFeedback").css("display", "inline-block");
+}
+
+function OnObservation() {
+	OnResetAll();
+	$("#divProblemsObservation").css("display", "inline-block");
+}
+
+function OnProblem() {
+	OnResetAll();
+	$("#divProblemsObservation").css("display", "inline-block");
+}
+
+function OnMedication() {
+	OnResetAll();
+	$("#divMedication").css("display", "inline-block");
+}
+
+function OnAllergies() {
+	OnResetAll();
+	$("#divAllergies").css("display", "inline-block");
+}
+
+function OnFeedback() {
+	OnResetAll();
+	$("#divFeedback").css("display", "inline-block");
+}
+
+function OnResetAll() {
+	//$("#divSummary").css("display", "inline-block");
+	$("#divProblemsObservation").css("display", "none");
+	$("#divMedication").css("display", "none");
+	$("#divAllergies").css("display", "none");
+	$("#divFeedback").css("display", "none");
 }
 </script>
 
 <body>
 <div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:20px;"></div>
 	<form action="PatientInfo">
-	<% Patient currentPatient = (Patient) session.getAttribute("patient");%>	
-	<% Medication currentMedication = (Medication) session.getAttribute("medication");%>	
+	<% 
+		Patient currentPatient = (Patient) session.getAttribute("patient");	
+		ArrayList<Medication> currentMedications; 
+		currentMedications = (ArrayList<Medication>)session.getAttribute("medicationList");	
+	 	ArrayList<Problem> currentProblems;
+	 	currentProblems = (ArrayList<Problem>)session.getAttribute("problemList");	
+	 	ArrayList<Observation> currentObservations;
+	 	currentObservations = (ArrayList<Observation>)session.getAttribute("ObservationList");
+	 
+	 %>
 		<div style="text-align:center; width:100%; float:left; padding-right:0px;">
 			<h1>Patient View</h1>
 		</div>
@@ -115,25 +159,25 @@ function BuildProblemTable() {
 					<td style="width:155px; text-align: top; vertical-align: top;">
 						<div style="text-align: top;">
 							<div style="padding-top:10px; padding-bottom:10px;">
-								<input type="button" id="btnSummary" onclick="OnInitLoad();" value="Summary">
+								<input type="button" id="btnSummary" onclick="OnSummary();" value="Summary">
 							</div>
 							<div style="padding-bottom:10px;">
-								<input type="button" id="btnProblems" onclick="OnInitLoad();" value="Problems">
+								<input type="button" id="btnProblems" onclick="OnProblem();" value="Problems">
 							</div>
 							<div style="padding-bottom:10px;">
-								<input type="button" id="btnMedications" onclick="OnInitLoad();" value="Medications">
+								<input type="button" id="btnMedications" onclick="OnMedication();" value="Medications">
 							</div>
 							<div style="padding-bottom:10px;">
-								<input type="button" id="btnObservations" onclick="OnInitLoad();" value="Observations">
+								<input type="button" id="btnObservations" onclick="OnObservation();" value="Observations">
 							</div>
 							<div style="padding-bottom:10px;">
-								<input type="button" id="btnFeedback" onclick="OnInitLoad();" value="Feedback">
+								<input type="button" id="btnFeedback" onclick="OnFeedback();" value="Feedback">
 							</div>
 							<div style="padding-bottom:10px;">
-								<input type="button" id="btnAllergies" onclick="OnInitLoad();" value="Allergies">
+								<input type="button" id="btnAllergies" onclick="OnAllergies();" value="Allergies">
 							</div>
 							<div style="padding-bottom:10px;">
-								<a href = "Login.jsp" style="text-decoration: none"><input type="button" id="btnHome" value="Home"></a>
+								<input type="button" id="btnHome" onclick="OnHome();" value="Home">
 							</div>
 						</div>
 					</td>
@@ -142,7 +186,7 @@ function BuildProblemTable() {
 							<table style="width:100%">
 								<tr>
 									<td style="width:100%">
-										<div id="divProblemsObservations" style="width:100%; padding: 5px;">
+										<div id="divProblemsObservation" style="width:100%; padding: 5px;">
 											<div style="width:50%; margin:5px; float:left;  border: 1px solid;">
 												<h3 style="margin:3px;">Problems</h3>
 												<div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:1px;"></div>
@@ -152,6 +196,27 @@ function BuildProblemTable() {
 														<th style="width:30%; text-align:left; border-bottom: 1px solid;">Onset Date</th>
 														<th style="width:30%; text-align:left; border-bottom: 1px solid;">Status</th>
 													</tr>
+													<%
+														if(currentProblems == null){
+														%>
+															<tr>
+																<td>
+																	<br />
+																	No Data found.
+																</td>
+															</tr>		
+														<%
+														}
+														else
+														{
+														for (int i=0; i< currentProblems.size(); i++ ) {
+														Problem currentProblem = currentProblems.get(i);%>
+													<tr>
+														<td style="width:40%; text-align:left; border-bottom: 1px solid; padding:0px;"><%= currentProblem.getDiagnosis()  %></td>
+														<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%= currentProblem.getOnSetDate()  %></td>
+														<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%= currentProblem.getStatus()  %></td>
+													</tr>
+													<% }}%>
 												</table>
 											</div>
 											<div style="width:48%; margin:5px; float:left;  border: 1px solid;">
@@ -163,36 +228,77 @@ function BuildProblemTable() {
 														<th style="width:30%; text-align:left; border-bottom: 1px solid;">Value</th>
 														<th style="width:30%; text-align:left; border-bottom: 1px solid;">Date</th>
 													</tr>
-																									</table>
+													<%
+													if(currentObservations == null){
+														%>
+														<tr>
+															<td>
+																<br />
+																No Data found.
+															</td>
+														</tr>		
+													<%
+													}
+													else
+													{
+														for (int i=0; i< currentObservations.size(); i++ ) {
+													
+														Observation currentObservation = currentObservations.get(i);%>
+													<tr>
+														<td style="width:40%; text-align:left; border-bottom: 1px solid; padding:0px;"><%= currentObservation.getObservationName()  %>Observation</td>
+														<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%= currentObservation.getValue()   %>Value</td>
+														<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%= currentObservation.getDate()   %>Date</td>
+													</tr>
+													<% } }%>
+												</table>
 											</div>
 										</div>
 									</td>
 								</tr>
 								<tr> 
 									<td style="width:100%; padding-left:10px; ">
-										<table style="border: 1px solid; width:100%; padding:5px; margin-right:10px;">
+										<div id="divMedication" style="width:100%; padding: 5px;">
+										<table style="border: 1px solid; width:100%; margin-right:10px;">
 											<tr>
-												<td>
+												<td style="width:100%; padding: 5px;">
 													<h2 style="margin:3px;">Medications</h2>
 												</td>
 											</tr>
 											<tr>
 												<td>
-													<div style="width:100%; padding: 5px;">
+													<div style="width:100%;">
 														<div style="width:45%; margin:5px; float:left;  border: 1px solid;">
 															<table style="width:100%;">
 																<tr>
+																	<%
+																	if(currentMedications == null || currentMedications.size() == 0){
+																		%>
+																		<tr>
+																			<td>
+																				<br />
+																				No Data found.
+																			</td>
+																		</tr>		
+																	<%
+																	}
+																	else
+																	{
+																		for(int i=0; i<currentMedications.size(); i++) {
+																	
+																		Medication currentMedication = currentMedications.get(i);%>
+																		
 																	<td>
-																		<%=currentMedication.getName()%><br />
-																		<%=currentMedication.getDosageInstructions()%><br />
-																		<%=currentMedication.getDosageSize()%><br />
-																		<%=currentMedication.getDosageQuantity()%><br />
-																		<%=currentMedication.getPrescriber()%><br />
-																		<%=currentMedication.getDateWritten()%><br />
-																		<%=currentMedication.getNDC()%><br />
-																		<%=currentMedication.getRefills()%><br />
+																		<%=currentMedication.getName() %><br />
+																		<%=currentMedication.getDosageInstructions() %><br />
+																		<%=currentMedication.getDosageSize() %><br />
+																		<%=currentMedication.getDosageQuantity() %><br />
+																		<%=currentMedication.getPrescriber() %><br />
+																		<%=currentMedication.getDateWritten() %><br />
+																		<%=currentMedication.getNDC() %><br />
+																		<%=currentMedication.getRefills() %><br />
 																		
 																	</td>
+																	<%}	}%>
 																</tr>
 																<tr>
 																	<td>
@@ -217,10 +323,12 @@ function BuildProblemTable() {
 												<td>
 											</tr>
 										</table>
+										</div>	
 									</td>
 								</tr>
 								<tr>
 									<td style="width:100%; padding-left:10px; ">
+										<div id="divAllergies">
 										<table style="border: 1px solid; width:100%; padding:5px; margin-right:10px;">
 											<tr>
 												<td style="width:100%; padding: 5px;">
@@ -239,49 +347,50 @@ function BuildProblemTable() {
 												</td>
 											</tr>
 										</table>
+										</div>
 									</td>								
 								</tr>
 								<tr>
 									<td style="width:100%; padding-left:10px; ">
-						<div id="divYourFeedback" style="float:left; width:100%; display:block in-line;">
-							<table style="border: 1px solid; width:100%; ">
-								<tr>
-									<td>
-										<h2 style="margin:3px;">Your Feedback</h2>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<textarea name="txtYourFeedback" rows="5" cols="60">Give us your feedback</textarea>
-									</td>
-								</tr>
-								<tr>
-									<td>
-									
-									</td>
-								</tr>
-								<tr>
-									<td>
-									
-									</td>
-								</tr>
-								<tr>
-									<td>
-									
-									</td>
-								</tr>
-								<tr>
-									<td>
-									
-									</td>
-								</tr>
-								<tr>
-									<td>
-									
-									</td>
-								</tr>
-							</table>
-						</div>
+										<div id="divFeedback" style="float:left; width:100%; display:block in-line;">
+											<table style="border: 1px solid; width:100%; ">
+												<tr>
+													<td>
+														<h2 style="margin:3px;">Your Feedback</h2>
+													</td>
+												</tr>
+												<tr>
+													<td>
+														<textarea name="txtYourFeedback" rows="5" cols="60">Give us your feedback</textarea>
+													</td>
+												</tr>
+												<tr>
+													<td>
+													
+													</td>
+												</tr>
+												<tr>
+													<td>
+													
+													</td>
+												</tr>
+												<tr>
+													<td>
+													
+													</td>
+												</tr>
+												<tr>
+													<td>
+													
+													</td>
+												</tr>
+												<tr>
+													<td>
+													
+													</td>
+												</tr>
+											</table>
+										</div>
 									
 									</td>
 								</tr>

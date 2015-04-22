@@ -158,7 +158,13 @@ public class DataAccess {
 	
 	}
 	
-	public static ArrayList<Observation> getObservationInfo(String patientID) throws Exception{
+	public ArrayList<Medication> getMedicationInfo(String patientID) throws Exception {
+		ArrayList<Medication> myMedication = new ArrayList<Medication> ();
+		
+		
+		return myMedication;
+	}
+	public ArrayList<Observation> getObservationInfo(String patientID) throws Exception{
 		
 		String xmlStr = makeRequest(observationURL, patientID, jsonFormatURL);
 		myObservations = new ArrayList<Observation> ();
