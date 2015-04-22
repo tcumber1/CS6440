@@ -7,6 +7,7 @@
 <title>Make a Prescription</title>
 <link rel="stylesheet" type="text/css" href="CS6440Web.css" media="screen" />
 <script src="http://code.jquery.com/jquery-latest.js"></script>
+
 </head>
 <body style="width:80%; padding-right:10%; padding-left:10%;">
 	<div style="text-align:center; width:100%; float:left; padding-right:0px;">
@@ -43,17 +44,37 @@
 	</div>
 	
 	<div id="SearchArea" style="width:45%; float:left; padding:2.5%;">
-		<input type="text" name="search" />
-		<input type="submit" id="'btnSearch" value="Search" />
-		<table id="searchResultsTable">
-			<tbody>
-	        	<tr><td>Item one</td></tr>
-	        	<tr><td>Item two</td></tr>
-	        	<tr><td>Item three</td></tr>
+		<input type="text" name="searchText" id="searchText" />
+		<button onclick="fetchDrug()">Search</button>
+		<table>
+			<tbody id="searchResultsTable">
 	    	</tbody>
 		</table>
 	</div>
 	<script>
+		function fetchDrug() {
+			//alert(document.getElementById("searchText").value);
+			alert(document.getElementById("searchText").value);
+	    	$.ajax({
+				url: "DrugSearch",
+				data: { searchTerm : document.getElementById("searchText").value},
+				type: "GET",
+				dataType: "xml",
+				success: function(data) {parse(data);},
+				failure: function() { alert("Failure: ");},
+				error: function(data) {parse(data);}
+			});
+		}
+		
+		function parse (data){
+			alert("yay");
+			$("#searchResultsTable").html('<tr><td id=NDC>ProductNDC</td><td id="name">Name</td><td id="dosageForm">Dosage Form</td><td id="dosage">Dosage</td></tr>');
+			$.each(data.drugs, function(idx, drug){
+			     $("#searchResultsTable").html('<tr><td id="name">' + drug.name + '</td><td id="dosage">' + drug.dosage + 
+			    		 "</td></tr>");
+			});
+		}
+	
 		function addRowHandlers() {
 		    var table = document.getElementById("searchResultsTable");
 		    var rows = table.getElementsByTagName("tr");
@@ -75,9 +96,11 @@
 		}
 		window.onload = addRowHandlers();
 	</script>
+	
 	<div id="DrugInfo" style="width:45%; float:right; padding:2.5%;">
 		<table>
 			<tbody>
+				<tr><td>Drug NDC:</td><td><input type="text" name="drugNDC" id="drugNDC" disabled="disabled"></td></tr>
 				<tr><td>Drug name:</td><td><input type="text" name="drugName" id="drugName" disabled="disabled"></td></tr>
 				<tr><td>Method:</td><td><input type="text" name="drugMethod" id="drugMethod" disabled="disabled"></td></tr>
 				<tr><td>Size:</td><td><input type="text" name="drugSize" id="drugSize" disabled="disabled"></td></tr>
