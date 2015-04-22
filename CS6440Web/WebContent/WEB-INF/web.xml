@@ -5,12 +5,20 @@
     <welcome-file>Login.jsp</welcome-file>
   </welcome-file-list>
   <servlet>
-  	<servlet-name>PatientInfo</servlet-name>
-  	<servlet-class>gatech.cs6440.project.PatientInfo</servlet-class>
+    <servlet-name>PatientInfo</servlet-name>
+    <servlet-class>gatech.cs6440.project.PatientInfo</servlet-class>
   </servlet>
   <servlet-mapping>
-  	<servlet-name>PatientInfo</servlet-name>
-  	<url-pattern>/PatientInfo/*</url-pattern>
+    <servlet-name>PatientInfo</servlet-name>
+    <url-pattern>/PatientInfo/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>DrugSearch</servlet-name>
+    <servlet-class>gatech.cs6440.project.DrugSearch</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DrugSearch</servlet-name>
+    <url-pattern>/DrugSearch/*</url-pattern>
   </servlet-mapping>
   <error-page>
     <error-code>404</error-code>
