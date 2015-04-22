@@ -197,7 +197,7 @@ function OnResetAll() {
 														<th style="width:30%; text-align:left; border-bottom: 1px solid;">Status</th>
 													</tr>
 													<%
-														if(currentProblems == null){
+														if(currentProblems == null|| currentProblems.size() == 0){
 														%>
 															<tr>
 																<td>
@@ -229,7 +229,7 @@ function OnResetAll() {
 														<th style="width:30%; text-align:left; border-bottom: 1px solid;">Date</th>
 													</tr>
 													<%
-													if(currentObservations == null){
+													if(currentObservations == null|| currentObservations.size() == 0){
 														%>
 														<tr>
 															<td>
