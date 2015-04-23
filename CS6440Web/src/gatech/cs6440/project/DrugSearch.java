@@ -1,15 +1,23 @@
 package gatech.cs6440.project;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+
+
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -31,8 +39,8 @@ public class DrugSearch extends HttpServlet {
 	
 	//these lines need to match your local mysql settings
 	static final String USER = "root";
-	static final String PASS = "admin";
-	
+//	static final String PASS = "admin";
+	static final String PASS = "may@2007";
 	private HttpSession session;
        
     /**
@@ -49,11 +57,13 @@ public class DrugSearch extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		session = request.getSession(true);
-		Map <String, Object> map = new HashMap<String, Object> ();
+		//Map <String, Object> map = new HashMap<String, Object> ();
 		String searchTerm = (String)request.getParameter("searchTerm");
+				
 		System.out.println(searchTerm);
 		Connection conn = null;
 	    Statement stmt = null;
+	    String ret = "";
 	    try{
 	    	//STEP 1: Register JDBC driver
 	    	Class.forName("com.mysql.jdbc.Driver");
@@ -66,36 +76,54 @@ public class DrugSearch extends HttpServlet {
 	    	System.out.println("Inserting records into the table...");
 	    	stmt = conn.createStatement();
 	    	
-	    	//STEP 3: Create SQL query
-	    	String sql = "Select PROPRIETARYNAME, ACTIVE_NUMERATOR_STRENGTH, ACTIVE_INGRED_UNIT, DOSAGEFORMNAME, PRODUCTNDC "
+	    	//STEP 3: Create SQL query ACTIVE_INGRED_UNIT
+	    	String sql = "Select PROPRIETARYNAME, ACTIVE_NUMERATOR_STRENGTH, DOSAGEFORMNAME, PRODUCTNDC "
 	    			+ "From eprescriptions.drugs Where PROPRIETARYNAME like '%" + searchTerm + "%';";
 	    	ResultSet rs = stmt.executeQuery(sql);
 	    	//stmt.close();
-	    	List<Map<String, Object>> drugs = new ArrayList<Map<String, Object>>();
+	    	//List<Map<String, Object>> drugs = new ArrayList<Map<String, Object>>();
+	    	ArrayList<Drug> drugList;
+	    	drugList = new ArrayList<Drug>();
+	    	Drug val;
 	    	while(rs.next()){
-	    		Map <String, Object> drug = new HashMap<String, Object>();
-	    		String name = rs.getString("PROPRIETARYNAME");
-	    		String dosage = rs.getString("ACTIVE_NUMERATOR_STRENGTH") + " " + rs.getString("ACTIVE_INGRED_UNIT");
-	    		String dosageForm = rs.getString("DOSAGEFORMNAME");
-	    		String productNDC = rs.getString("PRODUCTNDC");
+	    		val = new Drug();
+	    		val.setName(rs.getString("PROPRIETARYNAME"));
+	    		//val.setDosage(rs.getString("ACTIVE_NUMERATOR_STRENGTH") + " " + rs.getString("ACTIVE_INGRED_UNIT"));
+	    		val.setDosage(rs.getString("ACTIVE_NUMERATOR_STRENGTH") );
+	    		val.setDosageForm(rs.getString("DOSAGEFORMNAME"));
+	    		val.setProductNDC(rs.getString("PRODUCTNDC"));
 	    		
-	    		drug.put("name", name);
-	    		drug.put("dosage", dosage);
-	    		drug.put("dosageForm", dosageForm);
-	    		drug.put("productNDC", productNDC);
-	    		
-	    		drugs.add(drug);
+	    		drugList.add(val);
 	    	}
-	    	String error = "";
-	    	
-	    	if(drugs.isEmpty()){
-	    		error = "No results were found for " + searchTerm + ". Please try a different drug.";
+	    	ret = "No results were found for " + searchTerm + ". Please try a different drug.";
+	    	if (drugList == null || drugList.size() == 0)
+	    	{
+	    		throw new ServletException("No results were found for " + searchTerm + ". Please try a different drug.");
+	    	}
+	    	else
+	    	{
+	    		ret = "<table><tr>";
+	    		ret += "<th style=\"width:40%; text-align:left; border-bottom: 1px solid; padding:0px;\">Name</th>";
+	    		ret += "<th style=\"width:30%; text-align:left; border-bottom: 1px solid;\">Dosage</th>";
+				ret += "<th style=\"width:30%; text-align:left; border-bottom: 1px solid;\">Dosage Form</th>";
+				ret += "<th style=\"width:30%; text-align:left; border-bottom: 1px solid;\">Product NDC</th>";
+				ret += "</tr>";
+				for( int i=0; i < drugList.size(); i++)
+				{
+					Drug item = drugList.get(i);
+					ret += "<tr><td>" + item.getName() +"</td><td>" + item.getDosage() +"</td><td>" + item.getDosageForm() +"</td><td>" + item.getProductNDC();
+					ret += "</td></tr>";
+				}
+				ret += "</table>";
 	    	}
 	    	
-	    	map.put("error", error);
-	    	map.put("drugs", drugs);
-	    	
-	    	write(response, map);
+	    	response.setContentType("text/text");
+	    	PrintWriter printWriter  = response.getWriter();
+            printWriter.println(ret);
+            printWriter.close();
+            
+            
+           
 	    }
 	    catch(SQLException se){
 	    	//Handle errors for JDBC
@@ -127,12 +155,12 @@ public class DrugSearch extends HttpServlet {
 		// TODO Auto-generated method stub
 	}
 	
-	private void write(HttpServletResponse response, Map<String, Object> map) throws IOException{
-		response.setContentType("application/json");
-		String jsonString = new Gson().toJson(map);
-		System.out.println(jsonString);
-		response.getWriter().write(jsonString);
-		response.getWriter().close();
-	}
+//	private void write(HttpServletResponse response, Map<String, Object> map) throws IOException{
+//		response.setContentType("application/json");
+//		String jsonString = new Gson().toJson(map);
+//		System.out.println(jsonString);
+//		response.getWriter().write(jsonString);
+//		response.getWriter().close();
+//	}
 
 }

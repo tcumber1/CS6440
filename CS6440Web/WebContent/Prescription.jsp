@@ -1,14 +1,54 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+    pageEncoding="ISO-8859-1"
+    
+    import = "gatech.cs6440.project.Patient"
+    import = "gatech.cs6440.project.Drug"
+	import = "java.util.ArrayList"
+    import = "org.json.simple.JSONArray"
+	import = "org.json.simple.JSONObject"
+	import = "org.json.simple.parser.JSONParser"
+	import = "org.json.simple.parser.ParseException"
+	
+    %>
+    
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Make a Prescription</title>
 <link rel="stylesheet" type="text/css" href="CS6440Web.css" media="screen" />
-<script src="http://code.jquery.com/jquery-latest.js"></script>
 
 </head>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+
+<script>
+	
+	$(document).ready(function () {
+		
+	});
+	
+		function fetchDrug() {
+			//alert(document.getElementById("searchText").value);
+			//alert("Here " + document.getElementById("searchText").value);
+	    	$.ajax({
+				url: "DrugSearch",
+				data: { searchTerm : document.getElementById("searchText").value},
+				type: "GET",
+				dataType: "text",
+				success: function(data) {parse(data);},
+				failure: function() { alert("Failure: ");},
+				error: function() {alert("Error: ");}
+			});
+		}
+		
+		function parse (data){
+			$("#searchResultsTable").html(data);
+		}
+		
+	</script>
+
+
+
 <body style="width:80%; padding-right:10%; padding-left:10%;">
 	<div style="text-align:center; width:100%; float:left; padding-right:0px;">
 		<h1>Patient View</h1>
@@ -45,57 +85,13 @@
 	
 	<div id="SearchArea" style="width:45%; float:left; padding:2.5%;">
 		<input type="text" name="searchText" id="searchText" />
-		<button onclick="fetchDrug()">Search</button>
-		<table>
-			<tbody id="searchResultsTable">
-	    	</tbody>
-		</table>
-	</div>
-	<script>
-		function fetchDrug() {
-			//alert(document.getElementById("searchText").value);
-			alert(document.getElementById("searchText").value);
-	    	$.ajax({
-				url: "DrugSearch",
-				data: { searchTerm : document.getElementById("searchText").value},
-				type: "GET",
-				dataType: "xml",
-				success: function(data) {parse(data);},
-				failure: function() { alert("Failure: ");},
-				error: function(data) {parse(data);}
-			});
-		}
-		
-		function parse (data){
-			alert("yay");
-			$("#searchResultsTable").html('<tr><td id=NDC>ProductNDC</td><td id="name">Name</td><td id="dosageForm">Dosage Form</td><td id="dosage">Dosage</td></tr>');
-			$.each(data.drugs, function(idx, drug){
-			     $("#searchResultsTable").html('<tr><td id="name">' + drug.name + '</td><td id="dosage">' + drug.dosage + 
-			    		 "</td></tr>");
-			});
-		}
+		<input type="button" id="btnSearch" value="Search" onclick="fetchDrug();" />
+		<div  id="searchResultsTable">
+			<div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:10px;"></div>
+		</div>
 	
-		function addRowHandlers() {
-		    var table = document.getElementById("searchResultsTable");
-		    var rows = table.getElementsByTagName("tr");
-		    for (i = 0; i < rows.length; i++) {
-		        var currentRow = table.rows[i];
-		        var createClickHandler = 
-		            function(row) 
-		            {
-		                return function() { 
-		                   document.getElementById("drugNDC").value = row.getElementsID("NDC").value;
-		                   document.getElementById("drugName").value = row.getElementsID("name").value;
-		                   document.getElementById("drugMethod").value = row.getElementsID("dosageForm").value;
-		                   document.getElementById("drugDosage").value = row.getElementsID("dosage").value;
-		                 };
-		            };
-		
-		        currentRow.onclick = createClickHandler(currentRow);
-		    }
-		}
-		window.onload = addRowHandlers();
-	</script>
+	</div>
+
 	
 	<div id="DrugInfo" style="width:45%; float:right; padding:2.5%;">
 		<table>
