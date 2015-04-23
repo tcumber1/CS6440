@@ -112,6 +112,7 @@ function OnResetAll() {
 <div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:20px;"></div>
 	<form action="PatientInfo">
 	<% 
+		
 		Patient currentPatient = (Patient) session.getAttribute("patient");	
 		ArrayList<Medication> currentMedications; 
 		currentMedications = (ArrayList<Medication>)session.getAttribute("medicationList");	
@@ -119,6 +120,7 @@ function OnResetAll() {
 	 	currentProblems = (ArrayList<Problem>)session.getAttribute("problemList");	
 	 	ArrayList<Observation> currentObservations;
 	 	currentObservations = (ArrayList<Observation>)session.getAttribute("ObservationList");
+	
 	 
 	 %>
 		<div style="text-align:center; width:100%; float:left; padding-right:0px;">
