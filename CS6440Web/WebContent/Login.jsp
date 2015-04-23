@@ -11,7 +11,7 @@
 </head>
 <body>
 <div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:20px;"></div>
-	<form action="LoginServlet">
+	<form action="LoginServlet1">
 
        <table style="width:500px; margin:0 auto">
            <tr>
