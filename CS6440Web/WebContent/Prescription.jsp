@@ -11,7 +11,7 @@
 </head>
 <body style="width:80%; padding-right:10%; padding-left:10%;">
 	<div style="text-align:center; width:100%; float:left; padding-right:0px;">
-		<h1>Patient View</h1>
+		<h1>Create a Prescription</h1>
 	</div>
 	
 	<div class="divPatientHeader" >
@@ -40,6 +40,11 @@
 				Address: <label id="lblAddress">1001 Gtech Drive, Atlanta 50001, GA, USA</label>
 				</td>
 			</tr>
+			<tr>
+				<td>
+				PatientID: <label id="lblPatientID">3.568001602-01</label>
+				</td>
+			</tr>
 		</table>		
 	</div>
 	
@@ -54,47 +59,38 @@
 	<script>
 		function fetchDrug() {
 			//alert(document.getElementById("searchText").value);
-			alert(document.getElementById("searchText").value);
 	    	$.ajax({
 				url: "DrugSearch",
 				data: { searchTerm : document.getElementById("searchText").value},
 				type: "GET",
-				dataType: "xml",
-				success: function(data) {parse(data);},
+				dataType: "json",
+				success: function(response) {parse(response);},
 				failure: function() { alert("Failure: ");},
-				error: function(data) {parse(data);}
+				error: function(data) {parse("There was an error");}
 			});
+
 		}
 		
 		function parse (data){
-			alert("yay");
-			$("#searchResultsTable").html('<tr><td id=NDC>ProductNDC</td><td id="name">Name</td><td id="dosageForm">Dosage Form</td><td id="dosage">Dosage</td></tr>');
-			$.each(data.drugs, function(idx, drug){
-			     $("#searchResultsTable").html('<tr><td id="name">' + drug.name + '</td><td id="dosage">' + drug.dosage + 
-			    		 "</td></tr>");
-			});
+			//alert("error: " + data.error);
+			if(data.error == ""){
+				$("#searchResultsTable").html('<tr><td id=NDC>ProductNDC</td><td id="name">Name</td><td id="dosageForm">Dosage Form</td><td id="dosage">Dosage</td></tr>');
+				$.each(data.drugs, function(idx, drug){
+				     $("#searchResultsTable").append('<tr onclick="displayResult(this)"><td value="test">' + drug.productNDC + '</td><td id="name">' + drug.name + '</td><td id="dosageForm">' + drug.dosageForm + '</td><td id="dosage">' + drug.dosage + '</td></tr>');
+				});
+			}
+			else{
+				$("#searchResultsTable").html("<tr><td>" + data.error + "</td></tr>");
+			}
 		}
-	
-		function addRowHandlers() {
-		    var table = document.getElementById("searchResultsTable");
-		    var rows = table.getElementsByTagName("tr");
-		    for (i = 0; i < rows.length; i++) {
-		        var currentRow = table.rows[i];
-		        var createClickHandler = 
-		            function(row) 
-		            {
-		                return function() { 
-		                   document.getElementById("drugNDC").value = row.getElementsID("NDC").value;
-		                   document.getElementById("drugName").value = row.getElementsID("name").value;
-		                   document.getElementById("drugMethod").value = row.getElementsID("dosageForm").value;
-		                   document.getElementById("drugDosage").value = row.getElementsID("dosage").value;
-		                 };
-		            };
 		
-		        currentRow.onclick = createClickHandler(currentRow);
-		    }
+		function displayResult(row){
+			//alert(row.cells[0].textContent);
+			document.getElementById("drugNDC").value = row.cells[0].textContent;
+            document.getElementById("drugName").value = row.cells[1].textContent;
+            document.getElementById("drugMethod").value = row.cells[2].textContent;
+            document.getElementById("drugDosage").value = row.cells[3].textContent;
 		}
-		window.onload = addRowHandlers();
 	</script>
 	
 	<div id="DrugInfo" style="width:45%; float:right; padding:2.5%;">
@@ -103,13 +99,49 @@
 				<tr><td>Drug NDC:</td><td><input type="text" name="drugNDC" id="drugNDC" disabled="disabled"></td></tr>
 				<tr><td>Drug name:</td><td><input type="text" name="drugName" id="drugName" disabled="disabled"></td></tr>
 				<tr><td>Method:</td><td><input type="text" name="drugMethod" id="drugMethod" disabled="disabled"></td></tr>
-				<tr><td>Size:</td><td><input type="text" name="drugDosage" id="drugSize" disabled="disabled"></td></tr>
+				<tr><td>Size:</td><td><input type="text" name="drugDosage" id="drugDosage" disabled="disabled"></td></tr>
 				<tr><td>Amount:</td><td><input type="text" name="drugAmount" id="drugAmount"></td></tr>
-				<tr><td></td><td><button>Create</button></td></tr>
+				<tr><td>Refills:</td><td><input type="text" name="drugRefills" id="drugRefills"></td></tr>
+				<tr><td></td><td><button onclick="createPrescription()">Create</button></td></tr>
 			</tbody>
 		</table>
 	</div>
+	<script>
+		function createPrescription(){
+			//alert("here");
+			var ndc = document.getElementById("drugNDC").value
+			var name = document.getElementById("drugName").value
+			var amount = document.getElementById("drugAmount").value
+			var refills = document.getElementById("drugRefills").value
+			var patientID = $("#lblPatientID").text()
+			if(isNaN(amount) || isNaN(refills)){
+				//display error message for not number
+				alert("The amount or number of refills you entered are not numbers. \n Please enter a number and try again.");
+			}
+			else if(amount == null || amount == "" || refills == null || refills == ""){
+				//dispay error message for nothing enter in 'amount'
+				alert("No amount or number of refills were enter. \n Please enter a number and try again.");
+			}
+			else if(name == null || refills == ""){
+				//display error message for a drub not being selected
+				alert("Please select a drug from the left before submitting.");
+			}
+			else{
+				$.ajax({
+					url: "CreatePrescription",
+					data: {drugNDC: ndc, drugAmount: amount, numRefills: refills, patientID: patientID},
+					type: "GET",
+					dataType: "json",
+					success: function(response) {alert(response.message);},
+					failure: function() { alert("Failure: ");},
+					error: function(data) {alert("There was an error");}
+				});
+			}
+		}
+	</script>
 	
+	<%@ include file="WEB-INF/footer.jsp" %>
 
 </body>
+
 </html>
