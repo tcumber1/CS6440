@@ -10,7 +10,9 @@ public class Medication {
 	private String prescriber;
 	private String dateWritten;
 	private String NDC;
-	
+	private String dispenseQuantity;
+	private String status;
+
 	public Medication(){
 		super();
 	}
@@ -126,5 +128,35 @@ public class Medication {
 	public void setNDC(String nDC) {
 		NDC = nDC;
 	}
+
+
+	/**
+	 * @return the dispense Quantity
+	 */
+	public String getdispenseQuantity() {
+		return dispenseQuantity;
+	}
+
+	/**
+	 * @param set dispenseQuantity
+	 */
+	public void setdispenseQuantity(String dispenseQuantity) {
+		this.dispenseQuantity = dispenseQuantity;
+	}
+
+	/**
+	 * @return the status 
+	 */
+	public String getstatus() {
+		return status;
+	}
+
+	/**
+	 * @param name the status to set
+	 */
+	public void setstatus(String status) {
+		this.status = status;
+	}
+	
 
 }

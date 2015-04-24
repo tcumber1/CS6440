@@ -11,7 +11,7 @@
 </head>
 <body>
 <div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:20px;"></div>
-	<form action="LoginServlet1">
+	<form action="LoginServlet">
 
        <table style="width:500px; margin:0 auto">
            <tr>
@@ -43,7 +43,7 @@
                                    <label style="font-weight: bold">Password</label>
                                </td>
                                <td>
-                                   <input type="text" name="password" value="3.568001602-01" style="width:150px;" />
+                                   <input type="text" name="password" value="3.666383984-01" style="width:150px;" />
                                </td>
                            </tr>
                            <tr>

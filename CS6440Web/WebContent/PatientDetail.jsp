@@ -70,7 +70,7 @@ function OnSummary() {
 	//$("#divSummary").css("display", "inline-block");
 	$("#divProblemsObservation").css("display", "inline-block");
 	$("#divMedication").css("display", "inline-block");
-	$("#divAlergies").css("display", "inline-block");
+	$("#divAllergies").css("display", "inline-block");
 	$("#divFeedback").css("display", "inline-block");
 }
 
@@ -120,6 +120,8 @@ function OnResetAll() {
 	 	currentProblems = (ArrayList<Problem>)session.getAttribute("problemList");	
 	 	ArrayList<Observation> currentObservations;
 	 	currentObservations = (ArrayList<Observation>)session.getAttribute("ObservationList");
+	 	ArrayList<Allergy> currentAllergies;
+	 	currentAllergies = (ArrayList<Allergy>)session.getAttribute("AllergyList");
 	
 	 
 	 %>
@@ -133,7 +135,7 @@ function OnResetAll() {
 						Name: <label id="lblName"><%=currentPatient.getFullName()%></label>
 						</td>
 						<td style="width:40%">
-						Sex: <label id="lblSex">Female</label>
+						Sex: <label id="lblSex"><%=currentPatient.getSex()%></label>
 						</td>
 						<td style="width:20%" rowspan="3">
 							<img id="imgPatient"  style=" width:75px; background: transparent; background-color: transparent; " src="Images/Picture1.jpg" ></img>
@@ -141,15 +143,15 @@ function OnResetAll() {
 					</tr>
 					<tr>
 						<td style="width:40%" style="float:left;">
-						Phone # <label>404-000-0000</label>
+						Phone # <label><%=currentPatient.getPhoneNumber()%></label>
 						</td>
 						<td style="width:40%">
-						DOB: <label id="lblSex">1/1/1980</label>
+						DOB: <label id="lblDob"><%=currentPatient.getDateOfBirth()%></label>
 						</td>
 					</tr>
 					<tr>
 						<td colspan="2" style="float:left;">
-						Address: <label id="lblAddress">1001 Gtech Drive, Atlanta 50001, GA, USA</label>
+						Address: <label id="lblAddress"><%=currentPatient.getStreet()%></label>
 						</td>
 					</tr>
 				</table>		
@@ -267,20 +269,21 @@ function OnResetAll() {
 												</td>
 											</tr>
 											<tr>
-												<td>
+												<td style="width:100%;">
 													<div style="width:100%;">
-														<div style="width:45%; margin:5px; float:left;  border: 1px solid;">
 															<table style="width:100%;">
-																<tr>
+																
 																	<%
 																	if(currentMedications == null || currentMedications.size() == 0){
 																		%>
 																		<tr>
-																			<td>
+																			<td style="width:100%;">
 																				<br />
 																				No Data found.
 																			</td>
-																		</tr>		
+																		</tr>
+																	<tr>	
+																	<td style="width:100%;">																			
 																	<%
 																	}
 																	else
@@ -289,26 +292,33 @@ function OnResetAll() {
 																	
 																		Medication currentMedication = currentMedications.get(i);%>
 																		
-																	<td>
-																		<%=currentMedication.getName() %><br />
-																		<%=currentMedication.getDosageInstructions() %><br />
-																		<%=currentMedication.getDosageSize() %><br />
-																		<%=currentMedication.getDosageQuantity() %><br />
-																		<%=currentMedication.getPrescriber() %><br />
-																		<%=currentMedication.getDateWritten() %><br />
-																		<%=currentMedication.getNDC() %><br />
-																		<%=currentMedication.getRefills() %><br />
-																		
-																	</td>
-																	<%}	}%>
+																	
+																		<div style="width:45%; margin:5px; float:left;  border: 1px solid;">
+																			<%=currentMedication.getName() %><br />
+																			<%=currentMedication.getDosageInstructions() %><br />
+																			<%=currentMedication.getDosageSize() %><br />
+																			<%=currentMedication.getDosageQuantity() %><br />
+																			<%=currentMedication.getPrescriber() %><br />
+																			<%=currentMedication.getDateWritten() %><br />
+																			<%=currentMedication.getNDC() %><br />
+																			<%=currentMedication.getRefills() %><br />
+																		</div>	
+																	
+																	
+																	<%}	%> </td> <%}%>
 																</tr>
+															</table>
+														
+													</div>
+												<td>
+											</tr>
 																<tr>
-																	<td>
+																	<td style="width:100%;">
 																		<input type = "button" value="View Feedback" style="height:20px; background-color:white; border: 1px solid; padding:0px; margin: 0px;">
 																	</td>
 																</tr>
 																<tr>
-																	<td>
+																	<td style="width:100%;">
 																		<div id="btnProvideFeedback" style="display: in-line;">
 																			<input type = "button"  value="Provide Feedback" style="height:20px; background-color:white; border: 1px solid; padding:0px; margin: 0px;">
 																			<br/>
@@ -318,19 +328,17 @@ function OnResetAll() {
 																		</div>
 																	</td>
 																</tr>
-															</table>
-														</div>
-													
-													</div>
-												<td>
-											</tr>
+											
+											
+											
+											
 										</table>
 										</div>	
 									</td>
 								</tr>
 								<tr>
 									<td style="width:100%; padding-left:10px; ">
-										<div id="divAllergies">
+										<div id="divAllergies" style="float:left; width:100%; display:block in-line;">
 										<table style="border: 1px solid; width:100%; padding:5px; margin-right:10px;">
 											<tr>
 												<td style="width:100%; padding: 5px;">
@@ -345,6 +353,33 @@ function OnResetAll() {
 															<th style="width:30%; text-align:left; border-bottom: 1px solid;">Serverity</th>
 															<th style="width:30%; text-align:left; border-bottom: 1px solid;">Causes</th>
 														</tr>
+														<tr>
+															<%
+																if(currentAllergies == null || currentAllergies.size() == 0){
+																	%>
+																		<tr>
+																			<td colspan="3">
+																				No Data found.
+																			</td>
+																		</tr>
+																		
+																																				
+																	<%
+																	}
+																	else
+																	{
+																		for(int i=0; i<currentAllergies.size(); i++) {
+																			Allergy currentAllergy = currentAllergies.get(i);%>
+																		<tr>
+																			<td style="width:40%; text-align:left; border-bottom: 1px solid; padding:0px;"><%=currentAllergy.getAllergyName() %></td>
+																			<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%=currentAllergy.getSeverity() %></td>
+																			<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%=currentAllergy.getReaction() %></td>
+																		</tr>
+																		<%
+																		}
+																		
+																	} %>
+														
 													</table>
 												</td>
 											</tr>

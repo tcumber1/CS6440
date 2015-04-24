@@ -49,8 +49,3 @@ a:visited{
 	width:150px;
 }
 
-.divPatient input[type="button"]{
-	text-decoration-color:currentColor;
-	text-decoration-style: solid;
-	text-decoration: underline white !important;
-}

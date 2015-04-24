@@ -36,14 +36,16 @@ public class LoginServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		session = request.getSession(true);
-		if (request.getParameter("userName").trim().toUpperCase().equals("PATIENT"))
+		String username = request.getParameter("userName");
+        String password = request.getParameter("password");
+		if (username.equalsIgnoreCase("PATIENT"))
 		{
 			try
 			{
 				String PatientID = (String)request.getParameter("password");
 				Patient myPatient = new Patient();
-				DataAccess da = new DataAccess();
-				myPatient = da.getPatient(PatientID);
+
+				myPatient.fetchPatient(PatientID);
 				if (myPatient.isPatient()){
 					session.setAttribute("patient", myPatient);
 				}
@@ -52,16 +54,22 @@ public class LoginServlet extends HttpServlet {
 					throw new ServletException("Patient ID not found: " + PatientID);
 				}
 				ArrayList<Medication> medList = new ArrayList<Medication>();
-				medList = da.getMedicationInfo(PatientID);
+				medList = myPatient.getMyMedication();
 				
 				session.setAttribute("medicationList", medList);
 				ArrayList<Problem> probList =  new ArrayList<Problem>();
-				probList = da.getProblemInfo(PatientID);
+				probList = myPatient.getMyProblems();
 				session.setAttribute("problemList", probList);
 
 				ArrayList<Observation> obList =  new ArrayList<Observation>();
-				obList = da.getObservationInfo(PatientID);
+				obList = myPatient.getMyObservations();
 				session.setAttribute("ObservationList", obList);
+
+				ArrayList<Allergy> allgeryList =  new ArrayList<Allergy>();
+				allgeryList = myPatient.getMyAllergies();
+				session.setAttribute("AllergyList", allgeryList);
+
+				
 				String url = "PatientDetail.jsp?id=" + PatientID; 
 				response.sendRedirect(url);
 			}
@@ -71,6 +79,17 @@ public class LoginServlet extends HttpServlet {
 				throw new ServletException(e);
 			}
 		}
+        else if (username.equalsIgnoreCase("Doctor") && password.equalsIgnoreCase("Doctor")){
+            response.sendRedirect("DrAppointments.jsp");
+        }
+        
+        else if (username.equalsIgnoreCase("Pharmacist") && password.equalsIgnoreCase("Pharmacist")){
+            response.sendRedirect("PharmaPatient.jsp");
+        }
+        else
+        {
+        	throw new ServletException("Invalid UserName: " + username + " or Password: " + password);
+        }
 	}
 
 	/**

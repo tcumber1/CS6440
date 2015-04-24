@@ -5,6 +5,7 @@ public class Allergy {
 	private String allergyName;
 	private String severity;
 	private String reaction;
+	private String type;
 	
 	public Allergy(){
 		super();
@@ -50,6 +51,19 @@ public class Allergy {
 	 */
 	public void setReaction(String reaction) {
 		this.reaction = reaction;
+	}
+	/**
+	 * @return the reaction
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * @param reaction the reaction to set
+	 */
+	public void setType(String value) {
+		this.type = value;
 	}
 	
 	

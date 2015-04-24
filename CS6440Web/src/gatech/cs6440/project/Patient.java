@@ -6,9 +6,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.TimeZone;
 
+import javax.servlet.ServletException;
 import javax.xml.parsers.*;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -18,7 +25,13 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import org.json.simple.*;
 import org.json.simple.parser.*;
@@ -31,7 +44,7 @@ public class Patient {
 	private static String phoneNumber;
 	private static String street;
 	private static String city;
-	private static int zipCode;
+	private static String zipCode;
 	private static String state;
 	private static String sex;
 	private static String dateOfBirth;
@@ -43,9 +56,16 @@ public class Patient {
 	private final static String patientURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/";
 	private final static String problemURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Condition?subject:Patient=";
 	private final static String observationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Observation?subject:Patient=";
+	private final static String medicationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/MedicationPrescription?subject:Patient=";
 	private final static String jsonFormatURL = "&_format=json";
 	private final static String xmlFormatURL = "?_format=xml";
+	private static ArrayList<Medication> myMedication;
+
+	static final String DB_URL = "jdbc:mysql://localhost/eprescriptions";
 	
+	//these lines need to match your local mysql settings
+	static final String USER = "root";
+	static final String PASS = "may@2007";
 
 	public Patient(){
 		super();
@@ -145,14 +165,14 @@ public class Patient {
 	/**
 	 * @return the zipCode
 	 */
-	public int getZipCode() {
+	public String getZipCode() {
 		return zipCode;
 	}
 
 	/**
 	 * @param zipCode the zipCode to set
 	 */
-	public void setZipCode(int newZipCode) {
+	public void setZipCode(String newZipCode) {
 		zipCode = newZipCode;
 	}
 
@@ -261,12 +281,29 @@ public class Patient {
 		myAllergies = newMyAllergies;
 	}
 	
+	/**
+	 * @return the myMedication
+	 */
+	public ArrayList<Medication> getMyMedication() {
+		return myMedication;
+	}
+
+	/**
+	 * @param myMedication the myMedication to set
+	 */
+	public void setMyMedication(ArrayList<Medication> newMyMedication) {
+		myMedication = newMyMedication;
+	}
+
 	public void fetchPatient(String PatientID) throws Exception{
 		patientID = PatientID;
 		getPatientInfo();		
 		getObservationInfo();
 		getProblemInfo();
+		getMedicationInfo();
+		getAllergyInfo();
 	}
+	
 	
 	/*
 	 * Takes the PatientID and searches for it using the FHIR API
@@ -311,19 +348,159 @@ public class Patient {
 	    NodeList familyNodeList = (NodeList) family.evaluate(doc, XPathConstants.NODESET);
 	    NodeList givenNodeList = (NodeList) given.evaluate(doc, XPathConstants.NODESET);
 	    
-	     
-	    for (int i = 0; i < familyNodeList.getLength();)
+		Connection conn = null;
+	    Statement stmt = null;
+
+	    if( familyNodeList.getLength() > 0 )
 	    {
-	    	String patientFirstName = givenNodeList.item(i).getFirstChild().getNodeValue();
-	    	String patientLastName = familyNodeList.item(i).getFirstChild().getNodeValue();
-	    	firstName = patientFirstName;
-	    	lastName = patientLastName;
-	    	isPatient = true;
-	    	return;
+	    	String patientFirstName = givenNodeList.item(0).getFirstChild().getNodeValue();
+		    String patientLastName = familyNodeList.item(0).getFirstChild().getNodeValue();
+		    firstName = patientFirstName;
+		    lastName = patientLastName;
+		    isPatient = true;
+
+		    try{
+		    	//STEP 1: Register JDBC driver
+		    	Class.forName("com.mysql.jdbc.Driver");
+
+		    	//STEP 2: Open a connection
+		    	System.out.println("Connecting to a selected database...");
+		    	conn = DriverManager.getConnection(DB_URL, USER, PASS);
+		    	System.out.println("Connected server successfully...");
+
+		    	System.out.println("Inserting records into the table...");
+		    	stmt = conn.createStatement();
+		    	
+		    	//STEP 3: Create SQL query ACTIVE_INGRED_UNIT
+		    	String sql = "SELECT PID, PATIENTID, FIRSTNAME, LASTNAME, DOB, SEX, STREET, CITY, "
+		    			+ "STATE, ZIP, PHONE_HOME FROM PATIENTINFO;";
+		    	ResultSet rs = null;
+		    	rs = stmt.executeQuery(sql);
+		    	if (rs != null)
+		    	{
+			    	while(rs.next())
+			    	{
+			    		dateOfBirth = rs.getString("DOB");
+			    		sex = rs.getString("SEX");
+			    		street = rs.getString("STREET");
+			    		city = rs.getString("CITY");
+			    		state = rs.getString("STATE");
+			    		zipCode = rs.getString("ZIP");
+			    		phoneNumber = rs.getString("PHONE_HOME");
+			    	}
+		    	}
+		    	else
+		    	{
+		    		dateOfBirth = "";
+		    		sex = "Male";
+		    		street = "";
+		    		city = "Atlanta";
+		    		state = "GA";
+		    		zipCode = "30012";
+		    		phoneNumber = "555-234-1234";
+		    	}
+		    }
+			    catch(SQLException se){
+			    	//Handle errors for JDBC
+			    	se.printStackTrace();
+			    	throw new ServletException(se);
+			    }
+			    catch(Exception e){
+			    	//Handle errors for Class.forName
+			    	e.printStackTrace();
+			    	throw new ServletException(e);
+			    }
+			    finally{
+			    	//finally block used to close resources
+			    	try{
+			    		if(stmt!=null)
+			    			conn.close();
+			    	}
+			    	catch(SQLException se){
+			    	
+			    	}// do nothing
+			    	try{
+			    		if(conn!=null)
+			    			conn.close();
+			    	}
+			    	catch(SQLException se){
+			    		se.printStackTrace();
+			    		throw new ServletException(se);
+			    	}//end finally try
+			    }//end try
+    	}
+	    else
+	    {
+	    	isPatient = false;
 	    }
-	    isPatient = false;
+	    return;
 	}
 	
+	private static void getAllergyInfo() throws Exception{
+		
+		Connection conn = null;
+	    Statement stmt = null;
+	    myAllergies = new ArrayList<Allergy> ();
+		Allergy item;
+	    
+	    try{
+	    	//STEP 1: Register JDBC driver
+	    	Class.forName("com.mysql.jdbc.Driver");
+
+	    	//STEP 2: Open a connection
+	    	System.out.println("Connecting to a selected database...");
+	    	conn = DriverManager.getConnection(DB_URL, USER, PASS);
+	    	System.out.println("Connected server successfully...");
+
+	    	System.out.println("Inserting records into the table...");
+	    	stmt = conn.createStatement();
+	    	
+	    	//STEP 3: Create SQL query 
+	    	String sql = "select pinfo.patientid, pinfo.pid, algy.allergynotes, algy.reaction, adata.allergy, "
+	    			+ "adata.type from patientinfo pinfo join allergy algy on pinfo.pid  = algy.pid "
+	    			+ "join allergydata adata on adata.allergyid = algy.allergyid where pinfo.patientid ='"+patientID+"'";
+	    	ResultSet rs = null;
+	    	rs = stmt.executeQuery(sql);
+		    	while(rs.next())
+		    	{
+		    		item = new Allergy();
+		    		item.setAllergyName( rs.getString("allergy") );
+		    		item.setReaction( rs.getString("reaction") );
+		    		item.setSeverity( rs.getString("allergynotes") );
+		    		item.setType( rs.getString("type") );
+		    		myAllergies.add(item);
+		    		
+		    	}
+	    }
+		catch(SQLException se){
+	    	//Handle errors for JDBC
+	    	se.printStackTrace();
+	    	throw new ServletException(se);
+	    }
+	    catch(Exception e){
+	    	//Handle errors for Class.forName
+	    	e.printStackTrace();
+	    	throw new ServletException(e);
+	    }
+	    finally{
+	    	//finally block used to close resources
+	    	try{
+	    		if(stmt!=null)
+	    			conn.close();
+	    	}
+	    	catch(SQLException se){
+	    	
+	    	}// do nothing
+	    	try{
+	    		if(conn!=null)
+	    			conn.close();
+	    	}
+	    	catch(SQLException se){
+	    		se.printStackTrace();
+	    		throw new ServletException(se);
+	    	}//end finally try
+	    }//end try
+	}
 	
 	private static void getObservationInfo() throws Exception{
 		String xmlStr = makeRequest(observationURL, patientID, jsonFormatURL);
@@ -406,6 +583,78 @@ public class Patient {
 		  	myProblems.add(prob);
 		} //end while i2
 	}
+	
+	private static void getMedicationInfo() throws Exception{
+
+		String xmlStr = makeRequest(medicationURL, patientID, jsonFormatURL);
+		myMedication = new ArrayList<Medication>();
+	    InputStream inStream = new ByteArrayInputStream((xmlStr.toString().getBytes("utf-8")));
+	    InputStreamReader reader = new InputStreamReader(inStream);
+	    JSONParser jsonParser = new JSONParser();
+	    JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
+	    JSONArray lang= (JSONArray) jsonObject.get("entry");
+	    Iterator<?> i2 = lang.iterator(); 
+ 
+		   while (i2.hasNext()) {
+				Medication med = new Medication();
+			    	JSONObject innerObj = (JSONObject) i2.next();
+			  	System.out.println("\n \n title "+ innerObj.get("title"));
+			  	JSONObject content = (JSONObject) innerObj.get("content");
+			  	System.out.println("content resource type "+ content.get("resourceType"));
+			  	
+			 	
+			  	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+	 			Date result;
+	 		    	result = df.parse(content.get("dateWritten").toString());
+	 		    	SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy HH:mm:ss");
+	 		    	sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+	 		    	med.setDateWritten(sdf.format(result).toString());
+	 			System.out.println("content dateWritten " + sdf.format(result)); 
+	  				  	
+			  	System.out.println("content status "+ content.get("status"));
+			  	med.setstatus(content.get("status").toString());
+
+			  	JSONObject prescriber = (JSONObject) content.get("prescriber");
+			  	System.out.println("prescriber display "+ prescriber.get("display"));
+			  	med.setPrescriber(prescriber.get("display").toString());
+		   
+			  	JSONObject medication = (JSONObject) content.get("medication");
+			  	System.out.println("medication reference "+ medication.get("reference"));
+			  	System.out.println("medication display "+ medication.get("display"));	
+			  	med.setName(medication.get("display").toString());
+		  	
+
+			  	JSONObject dispense = (JSONObject) content.get("dispense");
+			  	System.out.println("dispense numberOfRepeatsAllowed "+ dispense.get("numberOfRepeatsAllowed"));	
+			  	med.setRefills(dispense.get("numberOfRepeatsAllowed").toString());
+	   
+			  	JSONObject quantity = (JSONObject) dispense.get("quantity");
+			  	System.out.println("quantity value "+ quantity.get("value"));	
+			  	med.setdispenseQuantity(quantity.get("value").toString());
+			  	
+			    JSONArray lang1= (JSONArray) content.get("dosageInstruction");
+			    Iterator<?> i3 = lang1.iterator(); 
+			  	
+			    while (i3.hasNext()) {
+			    	 JSONObject dosageInstruction = (JSONObject) i3.next();
+			    	System.out.println("dosageInstruction text "+ dosageInstruction.get("text"));	
+			    	med.setDosageInstructions(dosageInstruction.get("text").toString());
+			    	JSONObject doseQuantity = (JSONObject) dosageInstruction.get("doseQuantity");
+			    	System.out.println("doseQuantity value "+ doseQuantity.get("value"));	
+			    	System.out.println("doseQuantity units "+ doseQuantity.get("units"));	
+
+			    	med.setDosageQuantity(doseQuantity.get("value").toString());
+			    	med.setDosageSize(doseQuantity.get("units").toString());
+
+			    	
+			    }//end while i3
+			    myMedication.add(med);
+		   }   
+		   
+	
+	}
+	
+	
 }
 
 
