@@ -245,7 +245,7 @@ function OnResetAll() {
 													}
 													else
 													{
-														for (int i=0; i< currentObservations.size(); i++ ) {
+														for (int i=0; i< 2; i++ ) {
 													
 														Observation currentObservation = currentObservations.get(i);%>
 													<tr>
@@ -288,7 +288,7 @@ function OnResetAll() {
 																	}
 																	else
 																	{
-																		for(int i=0; i<currentMedications.size(); i++) {
+																		for(int i=0; i<2; i++) {
 																	
 																		Medication currentMedication = currentMedications.get(i);%>
 																		
@@ -368,7 +368,7 @@ function OnResetAll() {
 																	}
 																	else
 																	{
-																		for(int i=0; i<currentAllergies.size(); i++) {
+																		for(int i=0; i<4; i++) {
 																			Allergy currentAllergy = currentAllergies.get(i);%>
 																		<tr>
 																			<td style="width:40%; text-align:left; border-bottom: 1px solid; padding:0px;"><%=currentAllergy.getAllergyName() %></td>

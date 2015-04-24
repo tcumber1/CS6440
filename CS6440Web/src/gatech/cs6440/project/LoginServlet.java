@@ -1,12 +1,15 @@
 package gatech.cs6440.project;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -36,6 +39,37 @@ public class LoginServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		session = request.getSession(true);
+		/*
+		// Get config Properties
+		Properties prop = new Properties();
+		InputStream input = null;
+		
+		try{
+			//input = new FileInputStream("/config.properties");
+			input = this.getClass().getClassLoader().getResourceAsStream("config.properties");
+			prop.load(input);
+			session.setAttribute("fhirURL", prop.getProperty("fhirURL"));
+			session.setAttribute("databaseURL", prop.getProperty("databaseURL"));
+			session.setAttribute("dbuser", prop.getProperty("dbuser"));
+			session.setAttribute("dbpassword", prop.getProperty("dbpassword"));
+			
+		}
+		catch (IOException ex){
+			ex.printStackTrace();
+			throw new ServletException("Error reading config.properties file");
+		}
+		finally {
+			if ( input != null) {
+				try {
+					input.close();
+				}
+				catch(IOException e) {
+					e.printStackTrace();
+					throw new ServletException("Error reading config.properties file");
+				}
+			}
+		}
+		*/
 		String username = request.getParameter("userName");
         String password = request.getParameter("password");
 		if (username.equalsIgnoreCase("PATIENT"))
