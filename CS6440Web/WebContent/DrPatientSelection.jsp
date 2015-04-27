@@ -105,8 +105,8 @@ width:1200px
 		
 <% 
 
-	      String httpsURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/?_format=json";
-	    
+	      //String httpsURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/?_format=json";
+		  String httpsURL = session.getAttribute("fhirURL") + "Patient/?_format=json";
 	      URL myurl = new URL(httpsURL);
 	      HttpURLConnection con = (HttpURLConnection)myurl.openConnection();
 	      InputStream ins = con.getInputStream();

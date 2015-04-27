@@ -66,7 +66,9 @@
   </tr>
     <%
 		Class.forName("com.mysql.jdbc.Driver");
-		java.sql.Connection con = DriverManager.getConnection("jdbc:mysql://localhost/eprescriptions","root","may@2007");
+		//java.sql.Connection con = DriverManager.getConnection("jdbc:mysql://localhost/eprescriptions","root","may@2007");
+		java.sql.Connection con = DriverManager.getConnection((String)session.getAttribute("databaseURL"),(String)session.getAttribute("dbuser"),(String)session.getAttribute("dbpassword"));
+
 		Statement st= con.createStatement();
 		ResultSet rs=st.executeQuery("SELECT * FROM doctor");
 		ResultSetMetaData metaData = rs.getMetaData();

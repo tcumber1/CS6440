@@ -2,6 +2,7 @@ package gatech.cs6440.project;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -13,9 +14,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.TimeZone;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpSession;
 import javax.xml.parsers.*;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -52,23 +55,52 @@ public class Patient {
 	private static ArrayList<Observation> myObservations;
 	private static ArrayList<Problem> myProblems;
 	private static ArrayList<Allergy> myAllergies;
-	
-	private final static String patientURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/";
-	private final static String problemURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Condition?subject:Patient=";
-	private final static String observationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Observation?subject:Patient=";
-	private final static String medicationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/MedicationPrescription?subject:Patient=";
-	private final static String jsonFormatURL = "&_format=json";
-	private final static String xmlFormatURL = "?_format=xml";
 	private static ArrayList<Medication> myMedication;
 
-	static final String DB_URL = "jdbc:mysql://localhost/eprescriptions";
+	private final static String jsonFormatURL = "&_format=json";
+	private final static String xmlFormatURL = "?_format=xml";
+
+	private static String patientURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/";
+	private static String problemURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Condition?subject:Patient=";
+	private static String observationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Observation?subject:Patient=";
+	private static String medicationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/MedicationPrescription?subject:Patient=";
+
+	private static String DB_URL = "jdbc:mysql://localhost/eprescriptions";
 	
 	//these lines need to match your local mysql settings
-	static final String USER = "root";
-	static final String PASS = "may@2007";
-
+	private static String USER = "";
+	private static String PASS = "";
+	
+	
+	
 	public Patient(){
 		super();
+		Properties prop = new Properties();
+		InputStream input = null;
+		input = Patient.class.getResourceAsStream("props.properties");
+		try{
+			prop.load(input);
+			patientURL = prop.getProperty("fhirURL") + "Patient/";
+			problemURL = prop.getProperty("fhirURL") + "Condition?subject:Patient=";
+			observationURL = prop.getProperty("fhirURL") + "Observation?subject:Patient=";
+			medicationURL = prop.getProperty("fhirURL") + "MedicationPrescription?subject:Patient=";
+			DB_URL = prop.getProperty("databaseURL");
+			USER = prop.getProperty("dbuser");
+			PASS = prop.getProperty("dbpassword");
+		}
+		catch (IOException ex){
+			ex.printStackTrace();
+		}
+		finally {
+			if ( input != null) {
+				try {
+					input.close();
+				}
+				catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	/**

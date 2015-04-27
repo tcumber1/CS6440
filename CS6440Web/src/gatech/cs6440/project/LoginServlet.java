@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -39,14 +40,14 @@ public class LoginServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		session = request.getSession(true);
-		/*
+		
 		// Get config Properties
 		Properties prop = new Properties();
 		InputStream input = null;
 		
 		try{
-			//input = new FileInputStream("/config.properties");
-			input = this.getClass().getClassLoader().getResourceAsStream("config.properties");
+			input = LoginServlet.class.getResourceAsStream("props.properties");
+			
 			prop.load(input);
 			session.setAttribute("fhirURL", prop.getProperty("fhirURL"));
 			session.setAttribute("databaseURL", prop.getProperty("databaseURL"));
@@ -69,7 +70,7 @@ public class LoginServlet extends HttpServlet {
 				}
 			}
 		}
-		*/
+		
 		String username = request.getParameter("userName");
         String password = request.getParameter("password");
 		if (username.equalsIgnoreCase("PATIENT"))

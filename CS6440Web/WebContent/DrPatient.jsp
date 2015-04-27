@@ -121,8 +121,8 @@ Patient Id <SPAN STYLE="color: white; font-size: 25pt; background-color: #0404B4
   <li><a href="#cond">Conditions</a></li>
   <li><a href="DrMedication.jsp#med">Medications</a></li>
   <li><a href="#Allergy">Allergies</a></li>
-  <li><a href=" ">ePrescription</a></li>
-  <li><a href="DrAppointments.jsp">Home</a></li>
+  <li><a href="DrAppointments.jsp">Appointments</a></li>
+  <li><a href=" ">Home</a></li>
 </ul>
 </div>
 
@@ -132,7 +132,8 @@ Patient Id <SPAN STYLE="color: white; font-size: 25pt; background-color: #0404B4
 
 <% 
 		Class.forName("com.mysql.jdbc.Driver");
-		java.sql.Connection con = DriverManager.getConnection("jdbc:mysql://localhost/eprescriptions","root","may@2007");
+		
+		java.sql.Connection con = DriverManager.getConnection((String)session.getAttribute("databaseURL"),(String)session.getAttribute("dbuser"),(String)session.getAttribute("dbpassword"));
 		Statement st= con.createStatement();
 		String patientid1 = currentPatient.getPatientID().trim();
 		ResultSet rs=st.executeQuery("SELECT * FROM doctor where Patient_id='"+patientid1+"'");
@@ -212,7 +213,8 @@ for (int i = 0; i < patientProblems.size(); i++){
 
 		//Class.forName("com.mysql.jdbc.Driver");
 System.out.println("inside allergy");
-		java.sql.Connection con1 = DriverManager.getConnection("jdbc:mysql://localhost/eprescriptions","root","may@2007");
+		java.sql.Connection con1 = DriverManager.getConnection((String)session.getAttribute("databaseURL"),(String)session.getAttribute("dbuser"),(String)session.getAttribute("dbpassword"));
+		//java.sql.Connection con1 = DriverManager.getConnection("jdbc:mysql://localhost/eprescriptions","root","may@2007");
 		Statement st1= con1.createStatement();
 		String patientid2 = currentPatient.getPatientID().trim();
 		System.out.println("inside allergy"+patientid2);		
