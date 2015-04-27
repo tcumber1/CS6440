@@ -121,17 +121,17 @@ width:1200px
 <%
 
 for (int i = 0; i < patientMed.size(); i++){
-	Medication currentMedicatoin = patientMed.get(i);%>
+	Medication currentMedication = patientMed.get(i);%>
 
  <tr>
-<td class="tg-031e"><%= currentMedicatoin.getName()  %> </td>
-<td class="tg-031e"><%= currentMedicatoin.getPrescriber()   %> </td>
-<td class="tg-031e"><%= currentMedicatoin.getDateWritten()  %> </td>
-<td class="tg-031e"><%= currentMedicatoin.getstatus()  %> </td>
-<td class="tg-031e" align="center"><%= currentMedicatoin.getdispenseQuantity()  %> </td>
-<td class="tg-031e"> <%= currentMedicatoin.getDosageInstructions() %> </td>
-<td class="tg-031e"><%= currentMedicatoin.getDosageQuantity()+" "+ currentMedicatoin.getDosageSize()    %> </td>
-<td class="tg-031e" align="center"><%= currentMedicatoin.getRefills()  %> </td>
+<td class="tg-031e"><%= currentMedication.getName()  %> </td>
+<td class="tg-031e"><%=currentMedication.getNDC() %></td>
+<td class="tg-031e"><%=currentMedication.getDosageForm() %> </td>
+<td class="tg-031e"><%=currentMedication.getDosageQuantity() %> </td>
+<td class="tg-031e"><%=currentMedication.getNumPills() %> units </td>
+<td class="tg-031e" align="center"><%=currentMedication.getPrescriber() %> </td>
+<td class="tg-031e"> <%=currentMedication.getDateWritten() %> </td>
+<td class="tg-031e" align="center">Refills: <%=currentMedication.getRefills() %></td>
 
 
 </tr>

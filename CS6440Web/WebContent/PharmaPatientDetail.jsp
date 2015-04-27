@@ -136,13 +136,14 @@ Patient Id <SPAN STYLE="color: white; font-size: 25pt; background-color: #0404B4
 <table class="tg" >
   <tr>
     <th >Medication Name</th>
+    <th >Dosage Form</th>
+    <th>Drug NDC</th>
+    <th >Dosage Quantity</th>
+    <th >Dosage</th>
+    <th class="tg-s6z2" colspan="6"># of Refills Allowed</th>
     <th >Prescriber</th>
     <th >Date Written</th>
     <th >Status</th>
-    <th >Dispense Quantity</th>
-    <th >Dosage Instructions</th>
-    <th >Dosage</th>
-    <th class="tg-s6z2" colspan="6"># of Refills Allowed</th>
   </tr>
 
 
@@ -153,13 +154,15 @@ for (int i = 0; i < patientMed.size(); i++){
 
  <tr>
 <td class="tg-031e"><%= currentMedicatoin.getName()  %> </td>
+<td class="tg-031e"> <%= currentMedicatoin.getDosageForm() %> </td>
+<td class="tg-031e"> <%= currentMedicatoin.getNDC() %> </td>
+<td class="tg-031e" align="center"><%= currentMedicatoin.getDosageQuantity()  %> </td>
+<td class="tg-031e"><%= currentMedicatoin.getNumPills() %> </td>
+<td class="tg-031e" align="center"><%= currentMedicatoin.getRefills()  %> </td>
 <td class="tg-031e"><%= currentMedicatoin.getPrescriber()   %> </td>
 <td class="tg-031e"><%= currentMedicatoin.getDateWritten()  %> </td>
 <td class="tg-031e"><%= currentMedicatoin.getstatus()  %> </td>
-<td class="tg-031e" align="center"><%= currentMedicatoin.getdispenseQuantity()  %> </td>
-<td class="tg-031e"> <%= currentMedicatoin.getDosageInstructions() %> </td>
-<td class="tg-031e"><%= currentMedicatoin.getDosageQuantity()+" "+ currentMedicatoin.getDosageSize()    %> </td>
-<td class="tg-031e" align="center"><%= currentMedicatoin.getRefills()  %> </td>
+
 
 
 </tr>
@@ -183,10 +186,6 @@ for (int i = 0; i < patientMed.size(); i++){
 
 <%
 
-	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-	Date result;
-	SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy");
-	sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 	
 for (int i = 0; i < patientProblems.size(); i++){
 	Problem currentProblem = patientProblems.get(i);%>
@@ -194,7 +193,7 @@ for (int i = 0; i < patientProblems.size(); i++){
  <tr>
 <td class="tg-031e"><%= currentProblem.getDiagnosis()  %> </td>
 <td class="tg-031e"> <%= currentProblem.getStatus() %> </td>
-<td class="tg-031e"> <%= sdf.format(df.parse(currentProblem.getOnSetDate())) %> </td>
+<td class="tg-031e"> <%= currentProblem.getOnSetDate() %> </td>
 </tr>
 
 

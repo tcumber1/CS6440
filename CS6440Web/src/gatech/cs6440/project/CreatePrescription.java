@@ -7,9 +7,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -22,23 +22,22 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 
 /**
- * Servlet implementation class DrugSearch
+ * Servlet implementation class CreatePrescription
  */
-@WebServlet("/DrugSearch")
-public class DrugSearch extends HttpServlet {
+@WebServlet("/CreatePrescription")
+public class CreatePrescription extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
+	
 	
 	//these lines need to match your local mysql settings
 	static String DB_URL = "";
 	static String USER = "";
-	static String PASS = "";
-	
-       
+	static String PASS = "";   
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public DrugSearch() {
+    public CreatePrescription() {
         super();
         Properties prop = new Properties();
 		InputStream input = null;
@@ -69,9 +68,16 @@ public class DrugSearch extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		String drugNDC =  (String)request.getParameter("drugNDC");
+		String drugAmount = (String)request.getParameter("drugAmount");
+		String numRefills = (String)request.getParameter("numRefills");
+		String patientID = (String)request.getParameter("patientID");
+		int pid = 0;
+		String drugProductID = "";
+		
+		String message = "There was an error saving the prescription, please try again. \n If you continue recieving this error please report it to your local administrator.";
 		Map <String, Object> map = new HashMap<String, Object> ();
-		String searchTerm = (String)request.getParameter("searchTerm");
-		System.out.println(searchTerm);
+		
 		Connection conn = null;
 	    Statement stmt = null;
 	    try{
@@ -86,36 +92,32 @@ public class DrugSearch extends HttpServlet {
 	    	System.out.println("Inserting records into the table...");
 	    	stmt = conn.createStatement();
 	    	
-	    	//STEP 3: Create SQL query
-	    	String sql = "Select PROPRIETARYNAME, ACTIVE_NUMERATOR_STRENGTH, ACTIVE_INGRED_UNIT, DOSAGEFORMNAME, PRODUCTNDC "
-	    			+ "From eprescriptions.drugs Where PROPRIETARYNAME like '%" + searchTerm + "%';";
-	    	ResultSet rs = stmt.executeQuery(sql);
-	    	//stmt.close();
-	    	List<Map<String, Object>> drugs = new ArrayList<Map<String, Object>>();
+	    	String getPatientSql = "Select PID From patientinfo Where patientid = '" + patientID + "';";
+	    	ResultSet rs = stmt.executeQuery(getPatientSql);
+
 	    	while(rs.next()){
-	    		Map <String, Object> drug = new HashMap<String, Object>();
-	    		String name = rs.getString("PROPRIETARYNAME");
-	    		String dosage = rs.getString("ACTIVE_NUMERATOR_STRENGTH") + " " + rs.getString("ACTIVE_INGRED_UNIT");
-	    		String dosageForm = rs.getString("DOSAGEFORMNAME");
-	    		String productNDC = rs.getString("PRODUCTNDC");
+	    		pid = rs.getInt("PID");
+	    		System.out.println(pid);
 	    		
-	    		drug.put("name", name);
-	    		drug.put("dosage", dosage);
-	    		drug.put("dosageForm", dosageForm);
-	    		drug.put("productNDC", productNDC);
-	    		
-	    		drugs.add(drug);
-	    	}
-	    	String error = "";
-	    	
-	    	if(drugs.isEmpty()){
-	    		error = "No results were found for " + searchTerm + ". Please try a different drug.";
 	    	}
 	    	
-	    	map.put("error", error);
-	    	map.put("drugs", drugs);
+	    	String getDrugProductID = "Select PRODUCTID From drugs Where PRODUCTNDC = '" + drugNDC + "';";
+	    	rs = stmt.executeQuery(getDrugProductID);
 	    	
-	    	write(response, map);
+	    	while(rs.next()){
+	    		drugProductID = rs.getString("PRODUCTID");
+	    		System.out.println(drugProductID);
+	    		
+	    	}
+	    	
+	    	String date_prescribed = new SimpleDateFormat("yyyy/MM/dd").format(Calendar.getInstance().getTime());
+	    	
+	    	String createPrescriptionSql = "Insert Into medication(pid, productid, quantity, refills, date_prescribed) "
+	    			+ "Values(" + pid + ", '" + drugProductID + "', " + drugAmount + ", " + numRefills + ", '" + date_prescribed +"');";
+	    	System.out.println(createPrescriptionSql);
+	    	stmt.executeUpdate(createPrescriptionSql);
+	    	
+	    	message = "The prescription has been created";
 	    }
 	    catch(SQLException se){
 	    	//Handle errors for JDBC
@@ -137,7 +139,11 @@ public class DrugSearch extends HttpServlet {
 	    		se.printStackTrace();
 	    	}//end finally try
 	    }//end try
-		
+	    
+    	
+    	map.put("message", message);
+    	
+    	write(response, map);
 	}
 
 	/**

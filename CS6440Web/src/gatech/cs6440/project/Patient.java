@@ -2,6 +2,7 @@ package gatech.cs6440.project;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -11,8 +12,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.TimeZone;
 
 import javax.servlet.ServletException;
@@ -53,22 +56,49 @@ public class Patient {
 	private static ArrayList<Problem> myProblems;
 	private static ArrayList<Allergy> myAllergies;
 	
-	private final static String patientURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/";
-	private final static String problemURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Condition?subject:Patient=";
-	private final static String observationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Observation?subject:Patient=";
-	private final static String medicationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/MedicationPrescription?subject:Patient=";
+	private static String patientURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/";
+	private static String problemURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Condition?subject:Patient=";
+	private static String observationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Observation?subject:Patient=";
+	private static String medicationURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/MedicationPrescription?subject:Patient=";
 	private final static String jsonFormatURL = "&_format=json";
 	private final static String xmlFormatURL = "?_format=xml";
 	private static ArrayList<Medication> myMedication;
 
-	static final String DB_URL = "jdbc:mysql://localhost/eprescriptions";
+	
 	
 	//these lines need to match your local mysql settings
-	static final String USER = "root";
-	static final String PASS = "may@2007";
+	static String DB_URL = "";
+	static String USER = "";
+	static String PASS = "";
 
 	public Patient(){
 		super();
+		Properties prop = new Properties();
+		InputStream input = null;
+		input = Patient.class.getResourceAsStream("props.properties");
+		try{
+			prop.load(input);
+			patientURL = prop.getProperty("fhirURL") + "Patient/";
+			problemURL = prop.getProperty("fhirURL") + "Condition?subject:Patient=";
+			observationURL = prop.getProperty("fhirURL") + "Observation?subject:Patient=";
+			medicationURL = prop.getProperty("fhirURL") + "MedicationPrescription?subject:Patient=";
+			DB_URL = prop.getProperty("databaseURL");
+			USER = prop.getProperty("dbuser");
+			PASS = prop.getProperty("dbpassword");
+		}
+		catch (IOException ex){
+			ex.printStackTrace();
+		}
+		finally {
+			if ( input != null) {
+				try {
+					input.close();
+				}
+				catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	/**
@@ -364,11 +394,11 @@ public class Patient {
 		    	Class.forName("com.mysql.jdbc.Driver");
 
 		    	//STEP 2: Open a connection
-		    	System.out.println("Connecting to a selected database...");
+		    	//System.out.println("Connecting to a selected database...");
 		    	conn = DriverManager.getConnection(DB_URL, USER, PASS);
-		    	System.out.println("Connected server successfully...");
+		    	//System.out.println("Connected server successfully...");
 
-		    	System.out.println("Inserting records into the table...");
+		    	//System.out.println("Inserting records into the table...");
 		    	stmt = conn.createStatement();
 		    	
 		    	//STEP 3: Create SQL query ACTIVE_INGRED_UNIT
@@ -433,7 +463,6 @@ public class Patient {
 	    {
 	    	isPatient = false;
 	    }
-	    return;
 	}
 	
 	private static void getAllergyInfo() throws Exception{
@@ -448,11 +477,11 @@ public class Patient {
 	    	Class.forName("com.mysql.jdbc.Driver");
 
 	    	//STEP 2: Open a connection
-	    	System.out.println("Connecting to a selected database...");
+	    	//System.out.println("Connecting to a selected database...");
 	    	conn = DriverManager.getConnection(DB_URL, USER, PASS);
-	    	System.out.println("Connected server successfully...");
+	    	//System.out.println("Connected server successfully...");
 
-	    	System.out.println("Inserting records into the table...");
+	    	//System.out.println("Inserting records into the table...");
 	    	stmt = conn.createStatement();
 	    	
 	    	//STEP 3: Create SQL query 
@@ -529,8 +558,9 @@ public class Patient {
 		  		}
 		  	}
 		  	
-		  	String date = content.get("appliesDateTime").toString(); //TODO: Format to look pretty
-		  	ob.setDate(date);
+		  	String date = content.get("appliesDateTime").toString();
+		  	String updateDate = date.substring(0, date.indexOf('T'));
+		  	ob.setDate(updateDate);
 		  	
 		  	JSONObject valueQuantity = (JSONObject) content.get("valueQuantity");
 		  	if (valueQuantity != null){
@@ -544,9 +574,11 @@ public class Patient {
 			  	}
 			  	ob.setValue(value + " " + units.toString());
 		  	}
+		  	//System.out.println(ob);
 		  	myObservations.add(ob);
 		} //end while i2
 	}
+	
 	
 	private static void getProblemInfo() throws Exception{
 		String xmlStr = makeRequest(problemURL, patientID, jsonFormatURL);
@@ -566,8 +598,9 @@ public class Patient {
 		  	
 		  	String status = content.get("status").toString();
 		  	prob.setStatus(status);
-		  	String date = content.get("onsetDate").toString();
-		  	prob.setOnSetDate(date);
+		  	String date = content.get("onsetDate").toString(); 
+		  	String updateDate = date.substring(0, date.indexOf('T'));
+		  	prob.setOnSetDate(updateDate);
 		  	
 		  	JSONObject code = (JSONObject) content.get("code");
 		  	JSONArray coding = (JSONArray) code.get("coding");
@@ -580,6 +613,7 @@ public class Patient {
 				  	prob.setDiagnosis(display);
 		  		}
 		  	}
+		  	//System.out.println(prob);
 		  	myProblems.add(prob);
 		} //end while i2
 	}
@@ -595,65 +629,145 @@ public class Patient {
 	    JSONArray lang= (JSONArray) jsonObject.get("entry");
 	    Iterator<?> i2 = lang.iterator(); 
  
-		   while (i2.hasNext()) {
-				Medication med = new Medication();
-			    	JSONObject innerObj = (JSONObject) i2.next();
-			  	System.out.println("\n \n title "+ innerObj.get("title"));
-			  	JSONObject content = (JSONObject) innerObj.get("content");
-			  	System.out.println("content resource type "+ content.get("resourceType"));
-			  	
-			 	
-			  	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-	 			Date result;
-	 		    	result = df.parse(content.get("dateWritten").toString());
-	 		    	SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy HH:mm:ss");
-	 		    	sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-	 		    	med.setDateWritten(sdf.format(result).toString());
-	 			System.out.println("content dateWritten " + sdf.format(result)); 
-	  				  	
-			  	System.out.println("content status "+ content.get("status"));
-			  	med.setstatus(content.get("status").toString());
+	    while (i2.hasNext()) {
+	    	Medication med = new Medication();
+	    	JSONObject innerObj = (JSONObject) i2.next();
+	    	JSONObject content = (JSONObject) innerObj.get("content");
 
-			  	JSONObject prescriber = (JSONObject) content.get("prescriber");
-			  	System.out.println("prescriber display "+ prescriber.get("display"));
-			  	med.setPrescriber(prescriber.get("display").toString());
-		   
-			  	JSONObject medication = (JSONObject) content.get("medication");
-			  	System.out.println("medication reference "+ medication.get("reference"));
-			  	System.out.println("medication display "+ medication.get("display"));	
-			  	med.setName(medication.get("display").toString());
-		  	
+	    	String dateWritten = content.get("dateWritten").toString();
+	    	String updateDateWritten = dateWritten.substring(0, dateWritten.indexOf('T'));
+	    	med.setDateWritten(updateDateWritten);
 
-			  	JSONObject dispense = (JSONObject) content.get("dispense");
-			  	System.out.println("dispense numberOfRepeatsAllowed "+ dispense.get("numberOfRepeatsAllowed"));	
-			  	med.setRefills(dispense.get("numberOfRepeatsAllowed").toString());
-	   
-			  	JSONObject quantity = (JSONObject) dispense.get("quantity");
-			  	System.out.println("quantity value "+ quantity.get("value"));	
-			  	med.setdispenseQuantity(quantity.get("value").toString());
-			  	
-			    JSONArray lang1= (JSONArray) content.get("dosageInstruction");
-			    Iterator<?> i3 = lang1.iterator(); 
-			  	
-			    while (i3.hasNext()) {
-			    	 JSONObject dosageInstruction = (JSONObject) i3.next();
-			    	System.out.println("dosageInstruction text "+ dosageInstruction.get("text"));	
-			    	med.setDosageInstructions(dosageInstruction.get("text").toString());
-			    	JSONObject doseQuantity = (JSONObject) dosageInstruction.get("doseQuantity");
-			    	System.out.println("doseQuantity value "+ doseQuantity.get("value"));	
-			    	System.out.println("doseQuantity units "+ doseQuantity.get("units"));	
+	    	JSONObject prescriber = (JSONObject) content.get("prescriber");
+	    	String display = prescriber.get("display").toString();
+	    	med.setPrescriber(display);
 
-			    	med.setDosageQuantity(doseQuantity.get("value").toString());
-			    	med.setDosageSize(doseQuantity.get("units").toString());
+	    	JSONObject medication = (JSONObject) content.get("medication");
+	    	String medDisplay = medication.get("display").toString();
+	    	med.setName(medDisplay);
 
-			    	
-			    }//end while i3
-			    myMedication.add(med);
-		   }   
-		   
-	
+	    	JSONObject dispense = (JSONObject) content.get("dispense");
+	    	long lRefills = (long) dispense.get("numberOfRepeatsAllowed");
+	    	int refills = (int) lRefills;
+	    	med.setRefills("" + refills);
+
+	    	JSONObject quantity = (JSONObject) dispense.get("quantity");
+	    	double dValue = (double) quantity.get("value");
+	    	int iValue = (int) dValue;
+	    	med.setNumPills("" + iValue);
+
+
+	    	JSONArray dosageInstruction = (JSONArray) content.get("dosageInstruction");
+	    	Iterator<?> dosageIns = dosageInstruction.iterator();
+
+	    	while (dosageIns.hasNext()){
+	    		JSONObject dosage = (JSONObject) dosageIns.next();
+	    		String text = dosage.get("text").toString();
+	    		med.setDosageForm(text);
+
+	    		JSONObject doseQuantity = (JSONObject) dosage.get("doseQuantity");
+	    		if (doseQuantity != null){
+	    			Object value = doseQuantity.get("value");
+	    			Object units = doseQuantity.get("units");
+	    			if (units == null){
+	    				units = "";
+	    			}
+	    			if(value == null){
+	    				value = "";
+	    			}
+	    			med.setDosageQuantity(value.toString() + " " + units.toString());
+	    		}
+	    	}//end while dosageIns
+
+	    	JSONArray jContained = (JSONArray) content.get("contained");
+	    	Iterator<?> iContained = jContained.iterator();
+
+	    	while(iContained.hasNext()){
+	    		JSONObject contained = (JSONObject) iContained.next();
+	    		JSONObject code = (JSONObject) contained.get("code");
+
+	    		JSONArray jCoding = (JSONArray) code.get("coding");
+	    		Iterator<?> iCoding = jCoding.iterator();
+
+	    		while(iCoding.hasNext()){
+	    			JSONObject coding = (JSONObject) iCoding.next();
+	    			String packageNDC = coding.get("code").toString();
+	    			String productNDC = packageNDC.substring(0, packageNDC.lastIndexOf('-'));
+	    			med.setNDC(productNDC);
+	    		}//end while iCoding
+	    	}//end while iCotained
+	    	myMedication.add(med);
+	    }//end while i2
+	    getMedicationFromDB();
 	}
 	
+	private static void getMedicationFromDB() throws Exception{
+		Connection conn = null;
+	    Statement stmt = null;
+		Medication item;
+	    
+	    try{
+	    	//STEP 1: Register JDBC driver
+	    	Class.forName("com.mysql.jdbc.Driver");
+
+	    	//STEP 2: Open a connection
+	    	//System.out.println("Connecting to a selected database...");
+	    	conn = DriverManager.getConnection(DB_URL, USER, PASS);
+	    	//System.out.println("Connected server successfully...");
+
+	    	//System.out.println("Inserting records into the table...");
+	    	stmt = conn.createStatement();
+	    	
+	    	//STEP 3: Create SQL query 
+	    	String sql = "Select d.PROPRIETARYNAME, d.PRODUCTNDC, d.DOSAGEFORMNAME, d.ACTIVE_NUMERATOR_STRENGTH, d.ACTIVE_INGRED_UNIT, m.quantity, m.refills, m.date_prescribed "
+	    			+ "From medication as m inner join drugs as d on m.productid = d.PRODUCTID inner join patientinfo as p on m.pid = p.pid "
+	    			+ "Where p.patientid ='"+patientID+"'";
+	    	ResultSet rs = null;
+	    	rs = stmt.executeQuery(sql);
+	    	while(rs.next())
+	    	{
+	    		item = new Medication();
+	    		item.setName(rs.getString("PROPRIETARYNAME"));;
+	    		item.setNDC(rs.getString("PRODUCTNDC"));
+	    		item.setDosageForm(rs.getString("DOSAGEFORMNAME"));
+	    		item.setDosageQuantity(rs.getString("ACTIVE_NUMERATOR_STRENGTH") + " " + rs.getString("ACTIVE_INGRED_UNIT"));
+	    		item.setNumPills(rs.getString("quantity"));
+	    		item.setRefills(rs.getString("refills"));
+	    		String date_prescribed_to_format = rs.getString("date_prescribed");
+	    		String date_prescribed = date_prescribed_to_format.substring(0, date_prescribed_to_format.indexOf(' '));
+	    		item.setDateWritten(date_prescribed);
+	    		myMedication.add(item);
+	    	}
+	    }
+		catch(SQLException se){
+	    	//Handle errors for JDBC
+	    	se.printStackTrace();
+	    	throw new ServletException(se);
+	    }
+	    catch(Exception e){
+	    	//Handle errors for Class.forName
+	    	e.printStackTrace();
+	    	throw new ServletException(e);
+	    }
+	    finally{
+	    	//finally block used to close resources
+	    	try{
+	    		if(stmt!=null)
+	    			conn.close();
+	    	}
+	    	catch(SQLException se){
+	    	
+	    	}// do nothing
+	    	try{
+	    		if(conn!=null)
+	    			conn.close();
+	    	}
+	    	catch(SQLException se){
+	    		se.printStackTrace();
+	    		throw new ServletException(se);
+	    	}//end finally try
+	    }//end try
+	}
 	
 }
 

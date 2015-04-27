@@ -8,7 +8,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -24,39 +31,29 @@ import javax.servlet.http.HttpSession;
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-    private HttpSession session;
+    private static HttpSession session;
+    
+	
+	//these lines need to match your local mysql settings
+    static String DB_URL = "";
+	static String USER = "";
+	static String PASS = "";
     /**
      * @see HttpServlet#HttpServlet()
      */
     public LoginServlet() {
         super();
-        // TODO Auto-generated constructor stub
-    }
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		session = request.getSession(true);
-		/*
-		// Get config Properties
-		Properties prop = new Properties();
+        Properties prop = new Properties();
 		InputStream input = null;
-		
+		input = Patient.class.getResourceAsStream("props.properties");
 		try{
-			//input = new FileInputStream("/config.properties");
-			input = this.getClass().getClassLoader().getResourceAsStream("config.properties");
 			prop.load(input);
-			session.setAttribute("fhirURL", prop.getProperty("fhirURL"));
-			session.setAttribute("databaseURL", prop.getProperty("databaseURL"));
-			session.setAttribute("dbuser", prop.getProperty("dbuser"));
-			session.setAttribute("dbpassword", prop.getProperty("dbpassword"));
-			
+			DB_URL = prop.getProperty("databaseURL");
+			USER = prop.getProperty("dbuser");
+			PASS = prop.getProperty("dbpassword");
 		}
 		catch (IOException ex){
 			ex.printStackTrace();
-			throw new ServletException("Error reading config.properties file");
 		}
 		finally {
 			if ( input != null) {
@@ -65,11 +62,17 @@ public class LoginServlet extends HttpServlet {
 				}
 				catch(IOException e) {
 					e.printStackTrace();
-					throw new ServletException("Error reading config.properties file");
 				}
 			}
 		}
-		*/
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		session = request.getSession(true);
 		String username = request.getParameter("userName");
         String password = request.getParameter("password");
 		if (username.equalsIgnoreCase("PATIENT"))
@@ -114,6 +117,11 @@ public class LoginServlet extends HttpServlet {
 			}
 		}
         else if (username.equalsIgnoreCase("Doctor") && password.equalsIgnoreCase("Doctor")){
+        	try {
+				getDoctors();
+			} catch (Exception e) {
+				throw new ServletException(e);
+			}
             response.sendRedirect("DrAppointments.jsp");
         }
         
@@ -133,6 +141,69 @@ public class LoginServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 	}
 	
+	private static void getDoctors () throws Exception{
+		Connection conn = null;
+	    Statement stmt = null;
+	    ArrayList<Map<String, Object>> drPatients = new ArrayList<Map<String, Object>>();
+	    
+	    try{
+	    	//STEP 1: Register JDBC driver
+	    	Class.forName("com.mysql.jdbc.Driver");
 
+	    	//STEP 2: Open a connection
+	    	//System.out.println("Connecting to a selected database...");
+	    	conn = DriverManager.getConnection(DB_URL, USER, PASS);
+	    	//System.out.println("Connected server successfully...");
+
+	    	//System.out.println("Inserting records into the table...");
+	    	stmt = conn.createStatement();
+	    	
+	    	//STEP 3: Create SQL query 
+	    	String sql = "Select Patient_ID, Patient_Name, Appointment From doctor";
+	    	ResultSet rs = null;
+	    	rs = stmt.executeQuery(sql);
+		    	while(rs.next())
+		    	{
+		    		Map<String, Object> map = new HashMap<String, Object>();
+		    		String patientID = rs.getString("Patient_ID");
+		    		String patientName = rs.getString("Patient_Name");
+		    		String appointment = rs.getString("Appointment");
+		    		map.put("patientID", patientID);
+		    		map.put("patientName", patientName);
+		    		map.put("appointment", appointment);
+		    		
+		    		drPatients.add(map);
+		    	}
+		    session.setAttribute("patientList", drPatients);
+	    }
+		catch(SQLException se){
+	    	//Handle errors for JDBC
+	    	se.printStackTrace();
+	    	throw new ServletException(se);
+	    }
+	    catch(Exception e){
+	    	//Handle errors for Class.forName
+	    	e.printStackTrace();
+	    	throw new ServletException(e);
+	    }
+	    finally{
+	    	//finally block used to close resources
+	    	try{
+	    		if(stmt!=null)
+	    			conn.close();
+	    	}
+	    	catch(SQLException se){
+	    	
+	    	}// do nothing
+	    	try{
+	    		if(conn!=null)
+	    			conn.close();
+	    	}
+	    	catch(SQLException se){
+	    		se.printStackTrace();
+	    		throw new ServletException(se);
+	    	}//end finally try
+	    }//end try
+	}
 
 }

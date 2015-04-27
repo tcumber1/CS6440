@@ -5,8 +5,6 @@
     import = "gatech.cs6440.project.Allergy"
     import = "gatech.cs6440.project.Observation"
     import = "gatech.cs6440.project.Problem"
-    import = "org.json.simple.*"
-	import = "org.json.simple.parser.*"
 	import = "java.util.ArrayList"
     %>
 
@@ -18,34 +16,25 @@
 <title>E-Perscription - Patient View</title>
 <link rel="stylesheet" type="text/css" href="CS6440Web.css" media="screen" />
 </head>
+<style>
+table, th, td {
+    border-collapse: collapse;
+}
+span{
+	color:white;
+	font-size: 25pt;
+	background-color: #f38630;
+}
+th{
+	color:white;
+	background-color: #f38630;
+}
+</style>
 <script src="http://code.jquery.com/jquery-latest.js"></script>
 <script >
 $(document).ready(function () {
 	OnSummary();
 });
-
-function OnInitLoad() {
-	var patID = GetURLParameter("id");
-	var url = "https://taurus.i3l.gatech.edu:8443//HealthPort/fhir/Patient/";
-	url = url + patID;
-	
-	url = url + "?_format=xml";
-	$.ajax({
-		url: "PatientInfo",
-		data: { id : GetURLParameter("id")},
-		type: "GET",
-		dataType: "xml",
-		success: function( data) { parse(data); },
-		failure: function() { alert("Failure: ");},
-		error: function() { alert("Error: Something went wrong");}
-	
-	})
-}
-
-function parse(document){
-	alert("document = " + document);
-			
-}
 
 
 function GetURLParameter(sParam){
@@ -68,7 +57,8 @@ function OnHome() {
 function OnSummary() {
 	OnResetAll();
 	//$("#divSummary").css("display", "inline-block");
-	$("#divProblemsObservation").css("display", "inline-block");
+	$("#divProblems").css("display", "inline-block");
+	$("#divObservations").css("display", "inline-block");
 	$("#divMedication").css("display", "inline-block");
 	$("#divAllergies").css("display", "inline-block");
 	$("#divFeedback").css("display", "inline-block");
@@ -76,12 +66,12 @@ function OnSummary() {
 
 function OnObservation() {
 	OnResetAll();
-	$("#divProblemsObservation").css("display", "inline-block");
+	$("#divObservations").css("display", "inline-block");
 }
 
 function OnProblem() {
 	OnResetAll();
-	$("#divProblemsObservation").css("display", "inline-block");
+	$("#divProblems").css("display", "inline-block");
 }
 
 function OnMedication() {
@@ -101,11 +91,13 @@ function OnFeedback() {
 
 function OnResetAll() {
 	//$("#divSummary").css("display", "inline-block");
-	$("#divProblemsObservation").css("display", "none");
+	$("#divObservations").css("display", "none");
+	$("#divProblems").css("display", "none");
 	$("#divMedication").css("display", "none");
 	$("#divAllergies").css("display", "none");
 	$("#divFeedback").css("display", "none");
 }
+
 </script>
 
 <body>
@@ -169,19 +161,16 @@ function OnResetAll() {
 								<input type="button" id="btnProblems" onclick="OnProblem();" value="Problems">
 							</div>
 							<div style="padding-bottom:10px;">
-								<input type="button" id="btnMedications" onclick="OnMedication();" value="Medications">
-							</div>
-							<div style="padding-bottom:10px;">
 								<input type="button" id="btnObservations" onclick="OnObservation();" value="Observations">
 							</div>
 							<div style="padding-bottom:10px;">
-								<input type="button" id="btnFeedback" onclick="OnFeedback();" value="Feedback">
+								<input type="button" id="btnMedications" onclick="OnMedication();" value="Medications">
 							</div>
 							<div style="padding-bottom:10px;">
 								<input type="button" id="btnAllergies" onclick="OnAllergies();" value="Allergies">
 							</div>
 							<div style="padding-bottom:10px;">
-								<input type="button" id="btnHome" onclick="OnHome();" value="Home">
+								<input type="button" id="btnHome" onclick="OnHome();" value="Log out">
 							</div>
 						</div>
 					</td>
@@ -189,19 +178,24 @@ function OnResetAll() {
 						<div id="divSummary" style="width:100%; float:left;">
 							<table style="width:100%">
 								<tr>
-									<td style="width:100%">
-										<div id="divProblemsObservation" style="width:100%; padding: 5px;">
-											<div style="width:50%; margin:5px; float:left;  border: 1px solid;">
-												<h3 style="margin:3px;">Problems</h3>
-												<div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:1px;"></div>
+									<td style="width:100%; padding-left:10px;">
+										<div id="divProblems" style="float: left; width: 55%; display: inline-block;">
+											<table style="border: 1px solid; width:100%; padding:5px; margin-right:10px;">
+											<tr>
+											<td style="width:100%; padding: 5px;">
+												<span>Problems</span>
+											</td>
+											</tr>
+											<tr>
+											<td style="width:100%; padding: 5px;">	
 												<table style="width:100%;">
 													<tr>
-														<th style="width:40%; text-align:left; border-bottom: 1px solid; padding:0px;">Diagnosis</th>
+														<th style="width:40%; text-align:left; border-bottom: 1px solid;">Diagnosis</th>
 														<th style="width:30%; text-align:left; border-bottom: 1px solid;">Onset Date</th>
 														<th style="width:30%; text-align:left; border-bottom: 1px solid;">Status</th>
 													</tr>
 													<%
-														if(currentProblems == null|| currentProblems.size() == 0){
+														if(currentProblems == null || currentProblems.size() == 0){
 														%>
 															<tr>
 																<td>
@@ -216,16 +210,29 @@ function OnResetAll() {
 														for (int i=0; i< currentProblems.size(); i++ ) {
 														Problem currentProblem = currentProblems.get(i);%>
 													<tr>
-														<td style="width:40%; text-align:left; border-bottom: 1px solid; padding:0px;"><%= currentProblem.getDiagnosis()  %></td>
-														<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%= currentProblem.getOnSetDate()  %></td>
-														<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%= currentProblem.getStatus()  %></td>
+														<td style="width:40%; text-align:left; border-top: 1px solid; padding:0px;"><%= currentProblem.getDiagnosis()  %></td>
+														<td style="width:30%; text-align:left; border-top: 1px solid;"><%= currentProblem.getOnSetDate()  %></td>
+														<td style="width:30%; text-align:left; border-top: 1px solid;"><%= currentProblem.getStatus()  %></td>
 													</tr>
 													<% }}%>
 												</table>
-											</div>
-											<div style="width:48%; margin:5px; float:left;  border: 1px solid;">
-												<h3 style="margin:3px;">Observations</h3>
-												<div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:1px;"></div>
+											</td>
+											</tr>
+											</table>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td style="width:100%; padding-left:10px;">
+										<div id="divObservations" style="float: left; width: 55%; display: inline-block;">
+												<table style="border: 1px solid; width:100%; padding:5px; margin-right:10px;">
+												<tr>
+												<td style="width:100%; padding: 5px;">
+													<span>Observations</span>
+												</td>
+												</tr>
+												<tr>
+												<td style="width:100%; padding: 5px;">
 												<table style="width:100%;">
 													<tr>
 														<th style="width:40%; text-align:left; border-bottom: 1px solid; padding:0px;">Observation</th>
@@ -245,34 +252,37 @@ function OnResetAll() {
 													}
 													else
 													{
-														for (int i=0; i< 2; i++ ) {
+														for (int i=0; i < 10; i++ ) {//only want to display 10 observations
 													
 														Observation currentObservation = currentObservations.get(i);%>
 													<tr>
-														<td style="width:40%; text-align:left; border-bottom: 1px solid; padding:0px;"><%= currentObservation.getObservationName()  %>Observation</td>
-														<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%= currentObservation.getValue()   %>Value</td>
-														<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%= currentObservation.getDate()   %>Date</td>
+														<td style="width:40%; text-align:left; border-top: 1px solid; padding:0px;"><%= currentObservation.getObservationName()  %>Observation</td>
+														<td style="width:30%; text-align:left; border-top: 1px solid;"><%= currentObservation.getValue()   %></td>
+														<td style="width:30%; text-align:left; border-top: 1px solid;"><%= currentObservation.getDate()   %></td>
 													</tr>
 													<% } }%>
 												</table>
+												</td>
+												</tr>
+												</table>
 											</div>
-										</div>
 									</td>
 								</tr>
 								<tr> 
-									<td style="width:100%; padding-left:10px; ">
-										<div id="divMedication" style="width:100%; padding: 5px;">
-										<table style="border: 1px solid; width:100%; margin-right:10px;">
+									<td style="width:100%; padding-left:10px">
+										<div id="divMedication" style="float:left; width:100%; display:block in-line;">
+										<table style="border: 1px solid; width:100%; padding:5px; margin-right:10px;">
 											<tr>
 												<td style="width:100%; padding: 5px;">
-													<h2 style="margin:3px;">Medications</h2>
+													<span>Medications</span>
+												</td>
+												<td>
 												</td>
 											</tr>
 											<tr>
 												<td style="width:100%;">
 													<div style="width:100%;">
 															<table style="width:100%;">
-																
 																	<%
 																	if(currentMedications == null || currentMedications.size() == 0){
 																		%>
@@ -288,23 +298,22 @@ function OnResetAll() {
 																	}
 																	else
 																	{
-																		for(int i=0; i<2; i++) {
+																		for(int i=0; i<currentMedications.size(); i++) {
 																	
 																		Medication currentMedication = currentMedications.get(i);%>
 																		
 																	
-																		<div style="width:45%; margin:5px; float:left;  border: 1px solid;">
+																		<div style="width:45%; margin:5px; float:left;  border: 1px solid; padding-bottom:5px; padding-left:5px;">
 																			<%=currentMedication.getName() %><br />
-																			<%=currentMedication.getDosageInstructions() %><br />
-																			<%=currentMedication.getDosageSize() %><br />
+																			<%=currentMedication.getDosageForm() %><br />
 																			<%=currentMedication.getDosageQuantity() %><br />
+																			<%=currentMedication.getNumPills() %> units<br />
 																			<%=currentMedication.getPrescriber() %><br />
 																			<%=currentMedication.getDateWritten() %><br />
 																			<%=currentMedication.getNDC() %><br />
-																			<%=currentMedication.getRefills() %><br />
-																		</div>	
-																	
-																	
+																			Refills: <%=currentMedication.getRefills() %><br />
+																			<a style="height:20px; color:black; border: 1px solid; padding:0px; margin: 0px;" href="GetFeedback?patientID=<%=currentPatient.getPatientID()%>&NDC=<%=currentMedication.getNDC()%>&drugName=<%=currentMedication.getName()%>&dosageForm=<%=currentMedication.getDosageForm()%>&dosage=<%=currentMedication.getDosageQuantity()%>">Feedback</a>
+																		</div>
 																	<%}	%> </td> <%}%>
 																</tr>
 															</table>
@@ -312,23 +321,6 @@ function OnResetAll() {
 													</div>
 												<td>
 											</tr>
-																<tr>
-																	<td style="width:100%;">
-																		<input type = "button" value="View Feedback" style="height:20px; background-color:white; border: 1px solid; padding:0px; margin: 0px;">
-																	</td>
-																</tr>
-																<tr>
-																	<td style="width:100%;">
-																		<div id="btnProvideFeedback" style="display: in-line;">
-																			<input type = "button"  value="Provide Feedback" style="height:20px; background-color:white; border: 1px solid; padding:0px; margin: 0px;">
-																			<br/>
-																		</div>
-																		<div id="btnProvideFeedbackGiven" style="display: none;">
-																			<label>Feedback already given</label>
-																		</div>
-																	</td>
-																</tr>
-											
 											
 											
 											
@@ -338,20 +330,20 @@ function OnResetAll() {
 								</tr>
 								<tr>
 									<td style="width:100%; padding-left:10px; ">
-										<div id="divAllergies" style="float:left; width:100%; display:block in-line;">
+										<div id="divAllergies" style="float:left; width:55%; display:block in-line;">
 										<table style="border: 1px solid; width:100%; padding:5px; margin-right:10px;">
 											<tr>
 												<td style="width:100%; padding: 5px;">
-													<h2 style="margin:3px;">Allergies</h2>
+													<span>Allergies</span>
 												</td>
 											</tr>
 											<tr>
 												<td style="width:100%; padding: 5px;">
 													<table style="width:100%;">
 														<tr>
-															<th style="width:40%; text-align:left; border-bottom: 1px solid; padding:0px;">Allergy</th>
-															<th style="width:30%; text-align:left; border-bottom: 1px solid;">Serverity</th>
-															<th style="width:30%; text-align:left; border-bottom: 1px solid;">Causes</th>
+															<th style="width:25%; text-align:left; border-bottom: 1px solid; padding:0px;">Allergy</th>
+															<th style="width:40%; text-align:left; border-bottom: 1px solid;">Severity</th>
+															<th style="width:35%; text-align:left; border-bottom: 1px solid;">Reaction</th>
 														</tr>
 														<tr>
 															<%
@@ -371,9 +363,9 @@ function OnResetAll() {
 																		for(int i=0; i<4; i++) {
 																			Allergy currentAllergy = currentAllergies.get(i);%>
 																		<tr>
-																			<td style="width:40%; text-align:left; border-bottom: 1px solid; padding:0px;"><%=currentAllergy.getAllergyName() %></td>
-																			<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%=currentAllergy.getSeverity() %></td>
-																			<td style="width:30%; text-align:left; border-bottom: 1px solid;"><%=currentAllergy.getReaction() %></td>
+																			<td style="width:25%; text-align:left; border-top: 1px solid; padding:0px;"><%=currentAllergy.getAllergyName() %></td>
+																			<td style="width:40%; text-align:left; border-top: 1px solid;"><%=currentAllergy.getSeverity() %></td>
+																			<td style="width:35%; text-align:left; border-top: 1px solid;"><%=currentAllergy.getReaction() %></td>
 																		</tr>
 																		<%
 																		}
@@ -386,50 +378,6 @@ function OnResetAll() {
 										</table>
 										</div>
 									</td>								
-								</tr>
-								<tr>
-									<td style="width:100%; padding-left:10px; ">
-										<div id="divFeedback" style="float:left; width:100%; display:block in-line;">
-											<table style="border: 1px solid; width:100%; ">
-												<tr>
-													<td>
-														<h2 style="margin:3px;">Your Feedback</h2>
-													</td>
-												</tr>
-												<tr>
-													<td>
-														<textarea name="txtYourFeedback" rows="5" cols="60">Give us your feedback</textarea>
-													</td>
-												</tr>
-												<tr>
-													<td>
-													
-													</td>
-												</tr>
-												<tr>
-													<td>
-													
-													</td>
-												</tr>
-												<tr>
-													<td>
-													
-													</td>
-												</tr>
-												<tr>
-													<td>
-													
-													</td>
-												</tr>
-												<tr>
-													<td>
-													
-													</td>
-												</tr>
-											</table>
-										</div>
-									
-									</td>
 								</tr>
 							</table>
 						</div>

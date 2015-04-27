@@ -3,14 +3,13 @@ package gatech.cs6440.project;
 public class Medication {
 	
 	private String name;
-	private String dosageInstructions;
-	private String dosageSize;
+	private String dosageForm;
+	private String numPills;
 	private String dosageQuantity;
 	private String refills;
 	private String prescriber;
 	private String dateWritten;
 	private String NDC;
-	private String dispenseQuantity;
 	private String status;
 
 	public Medication(){
@@ -34,29 +33,29 @@ public class Medication {
 	/**
 	 * @return the dosageInstructions
 	 */
-	public String getDosageInstructions() {
-		return dosageInstructions;
+	public String getDosageForm() {
+		return dosageForm;
 	}
 
 	/**
 	 * @param dosageInstructions the dosageInstructions to set
 	 */
-	public void setDosageInstructions(String dosageInstructions) {
-		this.dosageInstructions = dosageInstructions;
+	public void setDosageForm(String dosageForm) {
+		this.dosageForm = dosageForm;
 	}
 
 	/**
-	 * @return the dosageSize
+	 * @return the numPills
 	 */
-	public String getDosageSize() {
-		return dosageSize;
+	public String getNumPills() {
+		return numPills;
 	}
 
 	/**
-	 * @param dosageSize the dosageSize to set
+	 * @param numPills the numPills to set
 	 */
-	public void setDosageSize(String dosageSize) {
-		this.dosageSize = dosageSize;
+	public void setNumPills(String numPills) {
+		this.numPills = numPills;
 	}
 
 	/**
@@ -116,32 +115,17 @@ public class Medication {
 	}
 
 	/**
-	 * @return the nDC
+	 * @return the NDC
 	 */
 	public String getNDC() {
 		return NDC;
 	}
 
 	/**
-	 * @param nDC the nDC to set
+	 * @param nDC the NDC to set
 	 */
-	public void setNDC(String nDC) {
-		NDC = nDC;
-	}
-
-
-	/**
-	 * @return the dispense Quantity
-	 */
-	public String getdispenseQuantity() {
-		return dispenseQuantity;
-	}
-
-	/**
-	 * @param set dispenseQuantity
-	 */
-	public void setdispenseQuantity(String dispenseQuantity) {
-		this.dispenseQuantity = dispenseQuantity;
+	public void setNDC(String NDC) {
+		this.NDC = NDC;
 	}
 
 	/**
