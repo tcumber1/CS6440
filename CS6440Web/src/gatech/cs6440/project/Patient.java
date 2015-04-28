@@ -420,7 +420,7 @@ public class Patient {
 		    	{
 		    		dateOfBirth = "";
 		    		sex = "Male";
-		    		street = "";
+		    		street = "4532 Georgia Tech Road";
 		    		city = "Atlanta";
 		    		state = "GA";
 		    		zipCode = "30012";

@@ -97,30 +97,7 @@ a:link{
 </head>
 
 <body>
-<<<<<<< HEAD
-<% Patient currentPatient = (Patient) session.getAttribute("patient");%>
-<% 
 
-	      //String httpsURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/?_format=json";
-		  String httpsURL = session.getAttribute("fhirURL") + "Patient/?_format=json";
-
-	      URL myurl = new URL(httpsURL);
-	      HttpURLConnection con = (HttpURLConnection)myurl.openConnection();
-	      InputStream ins = con.getInputStream();
-	      InputStreamReader isr = new InputStreamReader(ins);
-	      BufferedReader in = new BufferedReader(isr);
-	      StringBuilder sb = new StringBuilder();
-	      String inputLine;
-	   
-	      while ((inputLine = in.readLine()) != null)
-	      {
-	        sb.append(inputLine);
-	      }
-
-%>
-
-<p><SPAN STYLE="color: white; font-size: 25pt;font-weight: bold; background-color: #f38630">Patient Selection</SPAN>
-=======
 <% ArrayList<Map<String, Object>> prescriptions = (ArrayList<Map<String, Object>>) session.getAttribute("prescriptions");%>
 <div >
 <p style="text-align:center;"><SPAN STYLE="color: white; font-size: 25pt;font-weight: bold; background-color: #f38630">Patient Selection</SPAN>

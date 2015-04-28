@@ -174,51 +174,10 @@ function OnResetAll() {
 
 </head>
 <body>
-<<<<<<< HEAD
 
-<div id="header">
-<h1>
-<% Patient currentPatient = (Patient) session.getAttribute("patient");%>
-Patient Name <SPAN STYLE="color: white; font-size: 25pt; background-color: #0404B4"><%=currentPatient.getFullName()%></SPAN>
-&nbsp; &nbsp; &nbsp; &nbsp;
-Patient Id <SPAN STYLE="color: white; font-size: 25pt; background-color: #0404B4"> <%=currentPatient.getPatientID()%></SPAN>
-</h1>
-</div>
-
-<div id="leftnavigation">
-<h1>Menu</h1>
-<ul style="list-style-type:square">
-  <li><a href="#sum">Summary</a></li>
-  <li><a href="DrObservation.jsp#observ">Observations</a></li>
-  <li><a href="#cond">Conditions</a></li>
-  <li><a href="DrMedication.jsp#med">Medications</a></li>
-  <li><a href="#Allergy">Allergies</a></li>
-  <li><a href="DrAppointments.jsp">Appointments</a></li>
-  <li><a href=" ">Home</a></li>
-</ul>
-</div>
-
-<div id="content">
-		<p><a name="sum"><SPAN STYLE="color: white; font-size: 25pt; background-color: #f38630">Summary </SPAN></a></p>
-
-
-<% 
-		Class.forName("com.mysql.jdbc.Driver");
-		
-		java.sql.Connection con = DriverManager.getConnection((String)session.getAttribute("databaseURL"),(String)session.getAttribute("dbuser"),(String)session.getAttribute("dbpassword"));
-		Statement st= con.createStatement();
-		String patientid1 = currentPatient.getPatientID().trim();
-		ResultSet rs=st.executeQuery("SELECT * FROM doctor where Patient_id='"+patientid1+"'");
-		ResultSetMetaData metaData = rs.getMetaData(); 
-		int checkData = 0;
-		while(rs.next())
-        { 
-		checkData = checkData + 1; %>
-=======
 <div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:20px;"></div>
 	<form action="PrescriptionServlet">
 	<% 
->>>>>>> refs/remotes/origin/fullProject
 		
 		Patient currentPatient = (Patient) session.getAttribute("patient");	
 		ArrayList<Medication> currentMedications; 
@@ -502,7 +461,7 @@ Patient Id <SPAN STYLE="color: white; font-size: 25pt; background-color: #0404B4
 																	}
 																	else
 																	{
-																		for(int i=0; i<4; i++) {
+																		for(int i=0; i<currentAllergies.size(); i++) {
 																			Allergy currentAllergy = currentAllergies.get(i);%>
 																		<tr>
 																			<td style="width:25%; text-align:left; border-top: 1px solid; padding:0px;"><%=currentAllergy.getAllergyName() %></td>
@@ -526,79 +485,9 @@ Patient Id <SPAN STYLE="color: white; font-size: 25pt; background-color: #0404B4
 					<td>
 				</tr>
 			</table>
-			
-		
-<<<<<<< HEAD
-
-<p><SPAN STYLE="color: white; font-size: 25pt; background-color: #f38630">Allergies</SPAN></p>
-<table class="tg" >
-  <tr>
-    <th>Allergic To</th>
-    <th>Type</th>
-    <th>Allergic Reaction</th>
-    <th class="tg-s6z2" colspan="6">Notes</th>
-  </tr>
-
-
-<%
-
-		//Class.forName("com.mysql.jdbc.Driver");
-System.out.println("inside allergy");
-		java.sql.Connection con1 = DriverManager.getConnection((String)session.getAttribute("databaseURL"),(String)session.getAttribute("dbuser"),(String)session.getAttribute("dbpassword"));
-		//java.sql.Connection con1 = DriverManager.getConnection("jdbc:mysql://localhost/eprescriptions","root","may@2007");
-		Statement st1= con1.createStatement();
-		String patientid2 = currentPatient.getPatientID().trim();
-		System.out.println("inside allergy"+patientid2);		
-		
-		ResultSet rs1=st1.executeQuery("select pinfo.patientid, pinfo.pid, algy.allergynotes, algy.reaction, adata.allergy, adata.type from patientinfo pinfo join allergy algy on pinfo.pid  = algy.pid join allergydata adata on adata.allergyid = algy.allergyid where pinfo.patientid ='"+patientid2+"'");
-		ResultSetMetaData metaData1 = rs1.getMetaData(); 
-		int checkResults=0;
-		while(rs1.next())
-        { checkResults = checkResults+1;
-
-%>
-
- <tr>
-<td class="tg-031e"><%= rs1.getString(5)  %> </td>
-<td class="tg-031e"> <%= rs1.getString(6) %> </td>
-<td class="tg-031e"> <%= rs1.getString(4)  %> </td>
-<td class="tg-031e"> <%= rs1.getString(3)  %> </td>
-</tr>
-
-
-<% } if (checkResults == 0) { %>
-<tr>
-<td class="tg-031e"> Gluten </td>
-<td class="tg-031e"> Food   </td>
-<td class="tg-031e"> Vomiting, Diarrhea </td>
-<td class="tg-031e"> Since Childhood  </td>
-</tr>
- <tr>
-<td class="tg-031e"> Soy </td>
-<td class="tg-031e"> Food  </td>
-<td class="tg-031e"> Respiratory problems </td>
-<td class="tg-031e"> Occassional impact  </td>
-</tr>
-<tr>
-<td class="tg-031e"> Garlic </td>
-<td class="tg-031e"> Food   </td>
-<td class="tg-031e">  Stomach pain, Hives </td>
-<td class="tg-031e"> Since Childhood  </td>
-</tr>
-<% 	
-} con1.close();  %>
-</table>
-
-<a name="Allergy"> </a>
-</div>
-=======
 		</div>
 	</form>
 	<div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:10px;"></div>
  	
- 	
- 	<%@ include file="WEB-INF/footer.jsp" %>
->>>>>>> refs/remotes/origin/fullProject
-
 </body>
 </html>

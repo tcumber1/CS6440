@@ -67,28 +67,14 @@
     <th class="tg-s6z2" colspan="6">Patient Photo </th>
   </tr>
     <%
-<<<<<<< HEAD
-		Class.forName("com.mysql.jdbc.Driver");
-		//java.sql.Connection con = DriverManager.getConnection("jdbc:mysql://localhost/eprescriptions","root","may@2007");
-		java.sql.Connection con = DriverManager.getConnection((String)session.getAttribute("databaseURL"),(String)session.getAttribute("dbuser"),(String)session.getAttribute("dbpassword"));
 
-		Statement st= con.createStatement();
-		ResultSet rs=st.executeQuery("SELECT * FROM doctor");
-		ResultSetMetaData metaData = rs.getMetaData();
-
- 		String patient_id,picture="";
- 		int i =0;
-        while(rs.next())
-        {
-        	patient_id=rs.getString(3);	
-=======
 		ArrayList<Map<String, Object>> patientList = (ArrayList<Map<String, Object>>) session.getAttribute("patientList");
     	for(int i = 0; i < patientList.size(); i++){
     		Map<String, Object> patient = patientList.get(i);
     		String patientID = patient.get("patientID").toString();
     		String patientName = patient.get("patientName").toString();
     		String appointment = patient.get("appointment").toString();
->>>>>>> refs/remotes/origin/fullProject
+
             %>
 			<tr>		
 			<td align=center> <a href="DrPatientSummary?patient_id= <%= patientID %>"> <%= appointment%>      </a>     </td>	
