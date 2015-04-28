@@ -396,14 +396,18 @@ public class Patient {
 		    	//System.out.println("Connected server successfully...");
 
 		    	//System.out.println("Inserting records into the table...");
-		    	stmt = conn.createStatement();
+		    	stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		    	
 		    	//STEP 3: Create SQL query ACTIVE_INGRED_UNIT
 		    	String sql = "SELECT PID, PATIENTID, FIRSTNAME, LASTNAME, DOB, SEX, STREET, CITY, "
-		    			+ "STATE, ZIP, PHONE_HOME FROM PATIENTINFO;";
+		    			+ "STATE, ZIP, PHONE_HOME FROM PATIENTINFO where PATIENTID = '" + patientID + "' ;";
 		    	ResultSet rs = null;
+
 		    	rs = stmt.executeQuery(sql);
-		    	if (rs != null)
+		    	rs.last();
+		    	int rowCount = rs.getRow();
+		    	rs.beforeFirst();
+		    	if (rowCount > 0)
 		    	{
 			    	while(rs.next())
 			    	{
@@ -425,6 +429,9 @@ public class Patient {
 		    		state = "GA";
 		    		zipCode = "30012";
 		    		phoneNumber = "555-234-1234";
+		    		
+		    		// Save new patient to database
+		    		insertNewPatient();
 		    	}
 		    }
 			    catch(SQLException se){
@@ -740,6 +747,58 @@ public class Patient {
 	    		item.setMedicationID(rs.getInt("medicationid"));
 	    		myMedication.add(item);
 	    	}
+	    }
+		catch(SQLException se){
+	    	//Handle errors for JDBC
+	    	se.printStackTrace();
+	    	throw new ServletException(se);
+	    }
+	    catch(Exception e){
+	    	//Handle errors for Class.forName
+	    	e.printStackTrace();
+	    	throw new ServletException(e);
+	    }
+	    finally{
+	    	//finally block used to close resources
+	    	try{
+	    		if(stmt!=null)
+	    			conn.close();
+	    	}
+	    	catch(SQLException se){
+	    	
+	    	}// do nothing
+	    	try{
+	    		if(conn!=null)
+	    			conn.close();
+	    	}
+	    	catch(SQLException se){
+	    		se.printStackTrace();
+	    		throw new ServletException(se);
+	    	}//end finally try
+	    }//end try
+	}
+	
+	//adds new patient to the patient table
+	private static void insertNewPatient() throws Exception{
+		Connection conn = null;
+	    Statement stmt = null;
+	    
+	    try{
+	    	//STEP 1: Register JDBC driver
+	    	Class.forName("com.mysql.jdbc.Driver");
+
+	    	//STEP 2: Open a connection
+	    	conn = DriverManager.getConnection(DB_URL, USER, PASS);
+	    	stmt = conn.createStatement();
+	    	
+	    	//STEP 3: Create SQL query 
+	    	String sql = "INSERT INTO patientinfo 	(patientid,	firstname, lastname, dob, sex, street, city, state,	zip, phone_home)"
+	    			+ "VALUES ('" + patientID + "', '" + firstName + "', '" + lastName + "', '" + dateOfBirth + "', '" + sex + "', '" 
+	    			+ street + "', '" + city  + "', '" + state + "', '" + zipCode + "', '" + phoneNumber  + "');";
+
+	    	System.out.println(sql);
+	    	stmt.executeUpdate(sql);
+	    	
 	    }
 		catch(SQLException se){
 	    	//Handle errors for JDBC
