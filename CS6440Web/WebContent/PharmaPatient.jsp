@@ -101,7 +101,6 @@ a:link{
 <% ArrayList<Map<String, Object>> prescriptions = (ArrayList<Map<String, Object>>) session.getAttribute("prescriptions");%>
 <div >
 <p style="text-align:center;"><SPAN STYLE="color: white; font-size: 25pt;font-weight: bold; background-color: #f38630">Patient Selection</SPAN>
->>>>>>> refs/remotes/origin/fullProject
 </p>
 <table class="tg" align="center">
   <tr>

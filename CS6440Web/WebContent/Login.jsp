@@ -43,7 +43,7 @@
                                    <label style="font-weight: bold">Password</label>
                                </td>
                                <td>
-                                   <input type="text" name="password" value="3.666383984-01" style="width:150px;" />
+                                   <input type="password" name="password" value="3.666383984-01" style="width:150px;" />
                                </td>
                            </tr>
                            <tr>
