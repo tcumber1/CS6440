@@ -81,7 +81,7 @@
 			</tr>
 	<%} %>
  <tr><td align=center></td>
- <td align=center> <a href="DrPatientSelection.jsp">All Patients</a></td> 
+ <td align=center> <a href="AllPatientServlet">All Patients</a></td> 
  <td><img id="imgLogin2" style="height:55px; width:55px;"  src="${pageContext.request.contextPath}/Images/NewPatient.jpg" /></img></td>
  </tr> 
 </table>

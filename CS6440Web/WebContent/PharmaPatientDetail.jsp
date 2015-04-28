@@ -1,29 +1,19 @@
-
-<%@ page import ="java.sql.*" %>
-<%@ page import ="javax.sql.*" %>
-<%@ page import="java.io.*" %>
-<%@ page import = "java.text.*" %>
-<%@ page import  = "java.text.SimpleDateFormat" %> 
-<%@ page import  = "java.util.Date" %>
-<%@ page import  = "java.util.TimeZone" %>
-
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"
     import = "gatech.cs6440.project.Patient"
-    import = "gatech.cs6440.project.Observation"
     import = "gatech.cs6440.project.Medication"
-    import = "gatech.cs6440.project.Problem"
     import = "gatech.cs6440.project.Allergy"
-    import="java.util.ArrayList"
+    import = "gatech.cs6440.project.Observation"
+    import = "gatech.cs6440.project.Problem"
+	import = "java.util.ArrayList"
+	import = "java.util.Map"
     %>
-    
-    
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>E-Prescription</title>
-
+<link rel="stylesheet" type="text/css" href="CS6440Web.css" media="screen" />
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;border-color:#aaa;}
 .tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aaa;color:#333;background-color:#fff;}
@@ -97,162 +87,298 @@ font : 15pt Verdana, Geneva, sans-serif;
 color:black;
 overflow-wrap: break-word;
 word-wrap: break-word; 
-width:1200px
+}
+
+table, th, td {
+    border-collapse: collapse;
+}
+span{
+	color:white;
+	font-size: 25pt;
+	background-color: #f38630;
+}
+th{
+	color:white;
+	background-color: #f38630;
 }
 
 </style>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script >
+$(document).ready(function () {
+	OnSummary();
+});
 
+
+function GetURLParameter(sParam){
+	var sPageURL = window.location.search.substring(1);
+	    var sURLVariables = sPageURL.split('&');
+	    for (var i = 0; i < sURLVariables.length; i++)
+	    {
+	        var sParameterName = sURLVariables[i].split('=');
+	        if (sParameterName[0] == sParam)
+	        {
+	            return sParameterName[1];
+	        }
+	    }
+}
+
+function OnHome() {
+	window.location.href = "Login.jsp";
+}
+
+function OnSummary() {
+	OnResetAll();
+	//$("#divSummary").css("display", "inline-block");
+	$("#divProblems").css("display", "inline-block");
+	$("#divObservations").css("display", "inline-block");
+	$("#divMedication").css("display", "inline-block");
+	$("#divAllergies").css("display", "inline-block");
+	$("#divFeedback").css("display", "inline-block");
+}
+
+function OnMedication() {
+	OnResetAll();
+	$("#divMedication").css("display", "inline-block");
+}
+
+function OnAllergies() {
+	OnResetAll();
+	$("#divAllergies").css("display", "inline-block");
+}
+
+function OnResetAll() {
+	//$("#divSummary").css("display", "inline-block");
+	$("#divObservations").css("display", "none");
+	$("#divProblems").css("display", "none");
+	$("#divMedication").css("display", "none");
+	$("#divAllergies").css("display", "none");
+	$("#divFeedback").css("display", "none");
+}
+
+function doPrescription(prescriptionID){
+	$.ajax({
+		url: "FillPrescription",
+		data: {medicineid: prescriptionID},
+		type: "GET",
+		dataType: "json",
+		success: function(response) {
+			alert(response.message);
+			document.getElementById("medicationID" + response.prescriptionID).textContent = "active";
+			},
+		failure: function() { alert("Failure");},
+		error: function(jqXHR, textStatus, errorThrown) {alert(jqXHR+" - "+textStatus+" - "+errorThrown);}
+	});
+}
+
+function prescriptionFIlled(response){
+	alert(response.message);
+	document.getElementById("medicationID" + response.prescriptionID).textContent = "active";
+}
+
+</script>
 
 </head>
 <body>
-
-<div id="header">
-<h1>
-<% Patient currentPatient = (Patient) session.getAttribute("patient");%>
-Patient Name <SPAN STYLE="color: white; font-size: 25pt; background-color: #0404B4"><%=currentPatient.getFullName()%></SPAN>
-&nbsp; &nbsp; &nbsp; &nbsp;
-Patient Id <SPAN STYLE="color: white; font-size: 25pt; background-color: #0404B4"> <%=currentPatient.getPatientID()%></SPAN>
-</h1>
-</div>
-
-<div id="leftnavigation">
-<h1>Menu</h1>
-<ul style="list-style-type:square">
-  <li><a href="#med">Medications</a></li>
-  <li><a href="#cond">Conditions</a></li>
-  <li><a href="#Allergy">Allergies</a></li>
-  <li><a href="PharmaPatient.jsp">Patient Selection</a></li>
-  </ul>
- <img id="imgLogin" style="height:300px; width:150px; " src="${pageContext.request.contextPath}/Images/Pharma2.jpg" /></img>   
-
-</div>
-
-<div id="content">
-		
-<% ArrayList <Medication> patientMed = currentPatient.getMyMedication();%>
-
-<p><a name="med"><SPAN STYLE="color: white; font-size: 25pt;font-weight: bold; background-color: #f38630">Medications</SPAN></a>
-</p>
-<table class="tg" >
-  <tr>
-    <th >Medication Name</th>
-    <th >Dosage Form</th>
-    <th>Drug NDC</th>
-    <th >Dosage Quantity</th>
-    <th >Dosage</th>
-    <th class="tg-s6z2" colspan="6"># of Refills Allowed</th>
-    <th >Prescriber</th>
-    <th >Date Written</th>
-    <th >Status</th>
-  </tr>
-
-
-<%
-
-for (int i = 0; i < patientMed.size(); i++){
-	Medication currentMedicatoin = patientMed.get(i);%>
-
- <tr>
-<td class="tg-031e"><%= currentMedicatoin.getName()  %> </td>
-<td class="tg-031e"> <%= currentMedicatoin.getDosageForm() %> </td>
-<td class="tg-031e"> <%= currentMedicatoin.getNDC() %> </td>
-<td class="tg-031e" align="center"><%= currentMedicatoin.getDosageQuantity()  %> </td>
-<td class="tg-031e"><%= currentMedicatoin.getNumPills() %> </td>
-<td class="tg-031e" align="center"><%= currentMedicatoin.getRefills()  %> </td>
-<td class="tg-031e"><%= currentMedicatoin.getPrescriber()   %> </td>
-<td class="tg-031e"><%= currentMedicatoin.getDateWritten()  %> </td>
-<td class="tg-031e"><%= currentMedicatoin.getstatus()  %> </td>
-
-
-
-</tr>
-
-
-<% }  %>
-</table>
-
-
-
-<% ArrayList <Problem> patientProblems = currentPatient.getMyProblems();%>
-
-<p><a name="cond"><SPAN STYLE="color: white; font-size: 25pt; background-color: #f38630">Conditions</SPAN></a></p>
-<table class="tg" >
-  <tr>
-    <th>Diagnosis</th>
-    <th>Status</th>
-    <th class="tg-s6z2" colspan="6">On Set Date</th>
-  </tr>
-
-
-<%
-
+<div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:20px;"></div>
 	
-for (int i = 0; i < patientProblems.size(); i++){
-	Problem currentProblem = patientProblems.get(i);%>
-
- <tr>
-<td class="tg-031e"><%= currentProblem.getDiagnosis()  %> </td>
-<td class="tg-031e"> <%= currentProblem.getStatus() %> </td>
-<td class="tg-031e"> <%= currentProblem.getOnSetDate() %> </td>
-</tr>
-
-
-<% }  %>
- 
-</table>
+	<% 
 		
-<% ArrayList <Allergy> patientAllergies = currentPatient.getMyAllergies();%>
-<p><SPAN STYLE="color: white; font-size: 25pt; background-color: #f38630">Allergies</SPAN></p>
-<table class="tg" >
-  <tr>
-    <th>Allergic To</th>
-    <th>Type</th>
-    <th>Allergic Reaction</th>
-    <th class="tg-s6z2" colspan="6">Notes</th>
-  </tr>
+		Patient currentPatient = (Patient) session.getAttribute("patient");	
+		ArrayList<Medication> currentMedications; 
+		currentMedications = currentPatient.getMyMedication();	
+	 	ArrayList<Allergy> currentAllergies;
+	 	currentAllergies = currentPatient.getMyAllergies();
+	
+	 
+	 %>
+		<div style="text-align:center; width:100%; float:left; padding-right:0px;">
+			<h1>Doctor View</h1>
+		</div>
+		<div class="divPatientHeader" >
+				<table style="width:100%; padding:10px;">
+					<tr>
+						<td style="width:40%" style="float:left;">
+						Name: <label id="lblName"><%=currentPatient.getFullName()%></label>
+						</td>
+						<td style="width:40%">
+						Sex: <label id="lblSex"><%=currentPatient.getSex()%></label>
+						</td>
+						<td style="width:20%" rowspan="3">
+							<img id="imgPatient"  style=" width:75px; background: transparent; background-color: transparent; " src="Images/Picture1.jpg" ></img>
+						</td>
+					</tr>
+					<tr>
+						<td style="width:40%" style="float:left;">
+						Phone # <label><%=currentPatient.getPhoneNumber()%></label>
+						</td>
+						<td style="width:40%">
+						DOB: <label id="lblDob"><%=currentPatient.getDateOfBirth()%></label>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" style="float:left;">
+						Address: <label id="lblAddress"><%=currentPatient.getStreet()%></label>
+						</td>
+					</tr>
+				</table>		
+		</div>
+	<div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:1px;"></div>
+		<div class="divPatient">
+			<table style="width:95%; margin-left:20px; margin-right:20px;">
+				<tr>
+					<td style="width:155px; text-align: top; vertical-align: top;">
+						<div style="text-align: top;">
+							<div style="padding-top:10px; padding-bottom:10px;">
+								<input type="button" id="btnSummary" onclick="OnSummary();" value="Summary">
+							</div>
+							<div style="padding-bottom:10px;">
+								<input type="button" id="btnMedications" onclick="OnMedication();" value="Medications">
+							</div>
+							<div style="padding-bottom:10px;">
+								<input type="button" id="btnAllergies" onclick="OnAllergies();" value="Allergies">
+							</div>
+							<div style="padding-bottom:10px;">
+								<input type="button" id="btnHome" onclick="OnHome();" value="Log out">
+							</div>
+						</div>
+					</td>
+					<td style="width:100%">
+						<div id="divSummary" style="width:100%; float:left;">
+							<table style="width:100%">
+								<tr> 
+									<td style="width:100%; padding-left:10px">
+										<div id="divMedication" style="float:left; width:100%; display:block in-line;">
+										<table style="width:100%; padding:5px; margin-right:10px;">
+											<tr>
+												<td>
+													<span>Medications</span>
+												</td>
+												<td>
+												</td>
+											</tr>
+											<tr>
+												<td>
+												</td>
+											</tr>
+											<tr>
+												<td style="width:100%;">
+													<table class="tg" >
+													  <tr>
+													    <th >Medication Name</th>
+													    <th >Dosage Form</th>
+													    <th>Drug NDC</th>
+													    <th >Dosage Quantity</th>
+													    <th >Dosage</th>
+													    <th ># of Refills Allowed</th>
+													    <th >Prescriber</th>
+													    <th >Date Written</th>
+													    <th >Status</th>
+													  </tr>
+													
+													
+													<%
+													
+													for (int i = 0; i < currentMedications.size(); i++){
+														Medication currentMedication = currentMedications.get(i);%>
+													
+													 <tr>
+													<td class="tg-031e"><%= currentMedication.getName()  %> </td>
+													<td class="tg-031e"> <%= currentMedication.getDosageForm() %> </td>
+													<td class="tg-031e"> <%= currentMedication.getNDC() %> </td>
+													<td class="tg-031e" align="center"><%= currentMedication.getDosageQuantity()  %> </td>
+													<td class="tg-031e"><%= currentMedication.getNumPills() %> </td>
+													<td class="tg-031e" align="center"><%= currentMedication.getRefills()  %> </td>
+													<td class="tg-031e"><%= currentMedication.getPrescriber()   %> </td>
+													<td class="tg-031e"><%= currentMedication.getDateWritten()  %> </td>
+													<% if(currentMedication.getstatus().equals("pickup")){%>
+														<td class="tg-031e" id="medicationID<%=currentMedication.getMedicationID() %>">
+															<button style="cursor: pointer; color:white; background-color:#56A5E7; width:auto; padding:0px 10px 0px 10px;"onclick="doPrescription(<%=currentMedication.getMedicationID() %>)">fill</button>
+														</td>
+													<%} else{%>
+														<td class="tg-031e"><%= currentMedication.getstatus()  %> </td>
+													<%} %>
+													
+													
+													
+													</tr>
+													
+													
+													<% }  %>
+													</table>
+												<td>
+											</tr>
+											
+											
+											
+										</table>
+										</div>	
+									</td>
+								</tr>
+								<tr>
+									<td style="width:100%; padding-left:10px; ">
+										<div id="divAllergies" style="float:left; width:55%; display:block in-line;">
+										<table style="width:100%; padding:5px; margin-right:10px;">
+											<tr>
+												<td>
+													<span>Allergies</span>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<table class="tg">
+														<tr>
+															<th>Allergy</th>
+															<th>Severity</th>
+															<th>Reaction</th>
+														</tr>
+														<tr>
+															<%
+																if(currentAllergies == null || currentAllergies.size() == 0){
+																	%>
+																		<tr>
+																			<td colspan="3" class="tg-031e">
+																				No Data found.
+																			</td>
+																		</tr>
+																		
+																																				
+																	<%
+																	}
+																	else
+																	{
+																		for(int i=0; i<4; i++) {
+																			Allergy currentAllergy = currentAllergies.get(i);%>
+																		<tr>
+																			<td class="tg-031e"><%=currentAllergy.getAllergyName() %></td>
+																			<td class="tg-031e"><%=currentAllergy.getSeverity() %></td>
+																			<td class="tg-031e"><%=currentAllergy.getReaction() %></td>
+																		</tr>
+																		<%
+																		}
+																		
+																	} %>
+														
+													</table>
+												</td>
+											</tr>
+										</table>
+										</div>
+									</td>								
+								</tr>
+							</table>
+						</div>
+					<td>
+				</tr>
+			</table>
+			
+		
+		</div>
 
-
-<%
-if( patientAllergies.size() > 0 )
-{
-	for (int i = 0; i < patientAllergies.size(); i++){
-		Allergy currentAllergy = patientAllergies.get(i);
-
-%>
-
- <tr>
-<td class="tg-031e"><%= currentAllergy.getAllergyName()  %> </td>
-<td class="tg-031e"> <%= currentAllergy.getType() %> </td>
-<td class="tg-031e"> <%= currentAllergy.getReaction()  %> </td>
-<td class="tg-031e"> <%= currentAllergy.getSeverity()  %> </td>
-</tr>
-
-
-<% } } else { %>
-<tr>
-<td class="tg-031e"> Gluten </td>
-<td class="tg-031e"> Food   </td>
-<td class="tg-031e"> Vomiting, Diarrhea </td>
-<td class="tg-031e"> Since Childhood  </td>
-</tr>
- <tr>
-<td class="tg-031e"> Soy </td>
-<td class="tg-031e"> Food  </td>
-<td class="tg-031e"> Respiratory problems </td>
-<td class="tg-031e"> Occassional impact  </td>
-</tr>
-<tr>
-<td class="tg-031e"> Garlic </td>
-<td class="tg-031e"> Food   </td>
-<td class="tg-031e">  Stomach pain, Hives </td>
-<td class="tg-031e"> Since Childhood  </td>
-</tr>
-<% 	
-} %>
-</table>
-
-<a name="Allergy"> </a>
-</div>
+	<div style="clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height:10px;"></div>
+ 	
+ 	
+ 	<%@ include file="WEB-INF/footer.jsp" %>
 
 </body>
 </html>

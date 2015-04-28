@@ -11,6 +11,7 @@ public class Medication {
 	private String dateWritten;
 	private String NDC;
 	private String status;
+	private int medicationID;
 
 	public Medication(){
 		super();
@@ -140,6 +141,14 @@ public class Medication {
 	 */
 	public void setstatus(String status) {
 		this.status = status;
+	}
+
+	public int getMedicationID() {
+		return medicationID;
+	}
+
+	public void setMedicationID(int medicationID) {
+		this.medicationID = medicationID;
 	}
 	
 

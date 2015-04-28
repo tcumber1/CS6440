@@ -7,9 +7,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -20,25 +20,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-
 /**
- * Servlet implementation class CreatePrescription
+ * Servlet implementation class FillPrescription
  */
-@WebServlet("/CreatePrescription")
-public class CreatePrescription extends HttpServlet {
+@WebServlet("/FillPrescription")
+public class FillPrescription extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-	
+	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	
 	//these lines need to match your local mysql settings
 	static String DB_URL = "";
 	static String USER = "";
-	static String PASS = "";   
+	static String PASS = "";
+       
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public CreatePrescription() {
-        super();
+    public FillPrescription() {
+    	super();
         Properties prop = new Properties();
 		InputStream input = null;
 		input = Patient.class.getResourceAsStream("props.properties");
@@ -67,16 +66,10 @@ public class CreatePrescription extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		String drugNDC =  (String)request.getParameter("drugNDC");
-		String drugAmount = (String)request.getParameter("drugAmount");
-		String numRefills = (String)request.getParameter("numRefills");
-		String patientID = (String)request.getParameter("patientID");
-		int pid = 0;
-		String drugProductID = "";
+		String message;
+		int prescriptionID = Integer.parseInt(request.getParameter("medicineid"));
 		
-		String message = "There was an error saving the prescription, please try again. \n If you continue recieving this error please report it to your local administrator.";
-		Map <String, Object> map = new HashMap<String, Object> ();
+		Map<String, Object> map = new HashMap<String, Object>();
 		
 		Connection conn = null;
 	    Statement stmt = null;
@@ -85,37 +78,21 @@ public class CreatePrescription extends HttpServlet {
 	    	Class.forName("com.mysql.jdbc.Driver");
 
 	    	//STEP 2: Open a connection
-	    	System.out.println("Connecting to a selected database...");
 	    	conn = DriverManager.getConnection(DB_URL, USER, PASS);
-	    	System.out.println("Connected server successfully...");
 
-	    	System.out.println("Inserting records into the table...");
 	    	stmt = conn.createStatement();
 	    	
-	    	String getPatientSql = "Select PID From patientinfo Where patientid = '" + patientID + "';";
-	    	ResultSet rs = stmt.executeQuery(getPatientSql);
-
-	    	while(rs.next()){
-	    		pid = rs.getInt("PID");
-	    		
-	    	}
+	    	//STEP 3: Create SQL query
+	    	String sql = "Update medication "
+	    			+ "Set status = 'active' "
+	    			+ "Where medicationid = " + prescriptionID + ";";
+	    	stmt.executeUpdate(sql);
 	    	
-	    	String getDrugProductID = "Select PRODUCTID From drugs Where PRODUCTNDC = '" + drugNDC + "';";
-	    	rs = stmt.executeQuery(getDrugProductID);
+	    	message = "The prescription has been update.\nPlease hand the prescription to the patient now.";
+		    
+		    map.put("message", message);
+		    map.put("prescriptionID", prescriptionID);
 	    	
-	    	while(rs.next()){
-	    		drugProductID = rs.getString("PRODUCTID");
-	    		
-	    	}
-	    	
-	    	String date_prescribed = new SimpleDateFormat("yyyy/MM/dd").format(Calendar.getInstance().getTime());
-	    	
-	    	String createPrescriptionSql = "Insert Into medication(pid, productid, quantity, refills, date_prescribed, prescriber, status) "
-	    			+ "Values(" + pid + ", '" + drugProductID + "', " + drugAmount + ", " + numRefills + ", '" + date_prescribed +"', 'Dr. GATECH', 'pickup');";
-	    	System.out.println(createPrescriptionSql);
-	    	stmt.executeUpdate(createPrescriptionSql);
-	    	
-	    	message = "The prescription has been created";
 	    }
 	    catch(SQLException se){
 	    	//Handle errors for JDBC
@@ -138,10 +115,7 @@ public class CreatePrescription extends HttpServlet {
 	    	}//end finally try
 	    }//end try
 	    
-    	
-    	map.put("message", message);
-    	
-    	write(response, map);
+	    write(response, map);
 	}
 
 	/**
@@ -149,12 +123,12 @@ public class CreatePrescription extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		
 	}
 	
 	private void write(HttpServletResponse response, Map<String, Object> map) throws IOException{
 		response.setContentType("application/json");
 		String jsonString = new Gson().toJson(map);
-		System.out.println(jsonString);
 		response.getWriter().write(jsonString);
 		response.getWriter().close();
 	}

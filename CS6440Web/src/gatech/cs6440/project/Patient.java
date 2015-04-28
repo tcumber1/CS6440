@@ -10,13 +10,11 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.TimeZone;
 
 import javax.servlet.ServletException;
 import javax.xml.parsers.*;
@@ -28,13 +26,6 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 import org.json.simple.*;
 import org.json.simple.parser.*;
@@ -613,7 +604,6 @@ public class Patient {
 				  	prob.setDiagnosis(display);
 		  		}
 		  	}
-		  	//System.out.println(prob);
 		  	myProblems.add(prob);
 		} //end while i2
 	}
@@ -637,6 +627,9 @@ public class Patient {
 	    	String dateWritten = content.get("dateWritten").toString();
 	    	String updateDateWritten = dateWritten.substring(0, dateWritten.indexOf('T'));
 	    	med.setDateWritten(updateDateWritten);
+	    	
+	    	String status = content.get("status").toString();
+	    	med.setstatus(status);
 
 	    	JSONObject prescriber = (JSONObject) content.get("prescriber");
 	    	String display = prescriber.get("display").toString();
@@ -719,7 +712,7 @@ public class Patient {
 	    	stmt = conn.createStatement();
 	    	
 	    	//STEP 3: Create SQL query 
-	    	String sql = "Select d.PROPRIETARYNAME, d.PRODUCTNDC, d.DOSAGEFORMNAME, d.ACTIVE_NUMERATOR_STRENGTH, d.ACTIVE_INGRED_UNIT, m.quantity, m.refills, m.date_prescribed "
+	    	String sql = "Select m.medicationid, d.PROPRIETARYNAME, d.PRODUCTNDC, d.DOSAGEFORMNAME, d.ACTIVE_NUMERATOR_STRENGTH, d.ACTIVE_INGRED_UNIT, m.quantity, m.refills, m.date_prescribed, m.prescriber, m.status "
 	    			+ "From medication as m inner join drugs as d on m.productid = d.PRODUCTID inner join patientinfo as p on m.pid = p.pid "
 	    			+ "Where p.patientid ='"+patientID+"'";
 	    	ResultSet rs = null;
@@ -736,6 +729,9 @@ public class Patient {
 	    		String date_prescribed_to_format = rs.getString("date_prescribed");
 	    		String date_prescribed = date_prescribed_to_format.substring(0, date_prescribed_to_format.indexOf(' '));
 	    		item.setDateWritten(date_prescribed);
+	    		item.setPrescriber(rs.getString("prescriber"));
+	    		item.setstatus(rs.getString("status"));
+	    		item.setMedicationID(rs.getInt("medicationid"));
 	    		myMedication.add(item);
 	    	}
 	    }

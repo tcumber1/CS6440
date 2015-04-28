@@ -20,6 +20,14 @@
     <servlet-name>DrugSearch</servlet-name>
     <url-pattern>/DrugSearch/*</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <servlet-name>FillPrescription</servlet-name>
+    <servlet-class>gatech.cs6440.project.FillPrescription</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FillPrescription</servlet-name>
+    <url-pattern>/FillPrescription/*</url-pattern>
+  </servlet-mapping>
   <error-page>
     <error-code>404</error-code>
     <location>/AppExceptionHandler</location>

@@ -1,13 +1,7 @@
 package gatech.cs6440.project;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -126,6 +120,11 @@ public class LoginServlet extends HttpServlet {
         }
         
         else if (username.equalsIgnoreCase("Pharmacist") && password.equalsIgnoreCase("Pharmacist")){
+        	try {
+				getPrescriptions();
+			} catch (Exception e) {
+				throw new ServletException(e);
+			}
             response.sendRedirect("PharmaPatient.jsp");
         }
         else
@@ -206,4 +205,71 @@ public class LoginServlet extends HttpServlet {
 	    }//end try
 	}
 
+	private static void getPrescriptions() throws Exception{
+		Connection conn = null;
+	    Statement stmt = null;
+	    ArrayList<Map<String, Object>> prescriptions = new ArrayList<Map<String, Object>>();
+	    
+	    try{
+	    	//STEP 1: Register JDBC driver
+	    	Class.forName("com.mysql.jdbc.Driver");
+
+	    	//STEP 2: Open a connection
+	    	//System.out.println("Connecting to a selected database...");
+	    	conn = DriverManager.getConnection(DB_URL, USER, PASS);
+	    	//System.out.println("Connected server successfully...");
+
+	    	//System.out.println("Inserting records into the table...");
+	    	stmt = conn.createStatement();
+	    	
+	    	//STEP 3: Create SQL query 
+	    	String sql = "Select p.patientid, d.PROPRIETARYNAME, p.firstname, p.lastname "
+	    			+ "From medication as m inner join drugs as d on m.productid = d.PRODUCTID inner join patientinfo as p on p.pid = m.pid "
+	    			+ "Where m.status = 'pickup' "
+	    			+ "Group by p.patientid;";
+	    	ResultSet rs = null;
+	    	rs = stmt.executeQuery(sql);
+		    	while(rs.next())
+		    	{
+		    		Map<String, Object> map = new HashMap<String, Object>();
+		    		String patientID = rs.getString("patientid");
+		    		String drugName = rs.getString("PROPRIETARYNAME");
+		    		String patientName = rs.getString("firstname") + " " + rs.getString("lastname");
+		    		map.put("patientID", patientID);
+		    		map.put("drugName", drugName);
+		    		map.put("patientName", patientName);
+		    		
+		    		prescriptions.add(map);
+		    	}
+		    session.setAttribute("prescriptions", prescriptions);
+	    }
+		catch(SQLException se){
+	    	//Handle errors for JDBC
+	    	se.printStackTrace();
+	    	throw new ServletException(se);
+	    }
+	    catch(Exception e){
+	    	//Handle errors for Class.forName
+	    	e.printStackTrace();
+	    	throw new ServletException(e);
+	    }
+	    finally{
+	    	//finally block used to close resources
+	    	try{
+	    		if(stmt!=null)
+	    			conn.close();
+	    	}
+	    	catch(SQLException se){
+	    	
+	    	}// do nothing
+	    	try{
+	    		if(conn!=null)
+	    			conn.close();
+	    	}
+	    	catch(SQLException se){
+	    		se.printStackTrace();
+	    		throw new ServletException(se);
+	    	}//end finally try
+	    }//end try
+	}
 }

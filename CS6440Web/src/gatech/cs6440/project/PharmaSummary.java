@@ -31,8 +31,6 @@ public class PharmaSummary extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		String username = request.getParameter("patient_id");
-		System.out.println("in PharmaSummary"+username);
-
 		
 		try{
 			session = request.getSession(true);

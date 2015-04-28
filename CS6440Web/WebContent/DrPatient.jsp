@@ -192,7 +192,7 @@ function OnResetAll() {
 	 
 	 %>
 		<div style="text-align:center; width:100%; float:left; padding-right:0px;">
-			<h1>Patient View</h1>
+			<h1>Doctor View</h1>
 		</div>
 		<div class="divPatientHeader" >
 				<table style="width:100%; padding:10px;">
@@ -372,9 +372,11 @@ function OnResetAll() {
 												</td>
 											</tr>
 											<tr>
-												<td>
+												<td style="width:45%; padding: 5px;">
 													<input type="hidden" name="patientID" value="<%=currentPatient.getPatientID() %>">
 													<input type="submit" value="Create a Prescription" style="float:left">
+												</td>
+												<td>
 												</td>
 											</tr>
 											<tr>

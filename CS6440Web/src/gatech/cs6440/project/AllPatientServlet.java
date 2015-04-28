@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -19,12 +20,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * Servlet implementation class DrPatientSummary
+ * Servlet implementation class AllPatientServlet
  */
-@WebServlet("/DrPatientSummary")
-public class DrPatientSummary extends HttpServlet {
+@WebServlet("/AllPatientServlet")
+public class AllPatientServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static HttpSession session;
+	private static ArrayList<Map<String, Object>> patients;
 	
 	
 	//these lines need to match your local mysql settings
@@ -35,7 +37,7 @@ public class DrPatientSummary extends HttpServlet {
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public DrPatientSummary() {
+    public AllPatientServlet() {
         super();
         Properties prop = new Properties();
 		InputStream input = null;
@@ -66,30 +68,16 @@ public class DrPatientSummary extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		String username = request.getParameter("patient_id");
-
+		System.out.println("here");
 		
-		try{
+		try {
 			session = request.getSession(true);
-			String PatientID = username.trim();
-			Patient myPatient = new Patient();
-			myPatient.fetchPatient(PatientID);
-			if (myPatient.isPatient()){
-				session.setAttribute("patient", myPatient);
-				getSummary(PatientID);
-				response.sendRedirect("DrPatient.jsp");
-			}
-			else{
-				throw new ServletException("Invalid Patient ID: " + username);
-			}
-		}
-		catch(Exception e){
-			//System.out.println(e);
+			getAllPatientsFromDB();
+			response.sendRedirect("DrPatientSelection.jsp");
+		} catch (Exception e) {
 			throw new ServletException(e);
-		} 
-	
-		
-		
+
+		}
 	}
 
 	/**
@@ -99,10 +87,11 @@ public class DrPatientSummary extends HttpServlet {
 		// TODO Auto-generated method stub
 	}
 	
-	private static void getSummary(String patientID) throws Exception{
+	private static void getAllPatientsFromDB() throws Exception{
+
 		Connection conn = null;
 	    Statement stmt = null;
-	    Map<String, Object> map = null;
+	    
 	    
 	    try{
 	    	//STEP 1: Register JDBC driver
@@ -115,23 +104,26 @@ public class DrPatientSummary extends HttpServlet {
 
 	    	//System.out.println("Inserting records into the table...");
 	    	stmt = conn.createStatement();
+	    	patients = new ArrayList<Map<String, Object>>();
 	    	
 	    	//STEP 3: Create SQL query 
-	    	String sql = "Select Details, Reason, Visit_Reason From doctor Where Patient_ID = '" + patientID + "';";
+	    	String sql = "Select patientid, firstname, lastname From patientinfo;";
 	    	ResultSet rs = null;
 	    	rs = stmt.executeQuery(sql);
-		    	while(rs.next())
-		    	{
-		    		map = new HashMap<String, Object>();
-		    		String details = rs.getString("Details");
-		    		String reason = rs.getString("Reason");
-		    		String visitReason = rs.getString("Visit_Reason");
-		    		map.put("details", details);
-		    		map.put("reason", reason);
-		    		map.put("visitReason", visitReason);
-		    		
-		    	}
-		    session.setAttribute("summary", map);
+	    	while(rs.next())
+	    	{
+	    		Map<String, Object> patient = new HashMap<String, Object>();
+	    		String patientID = rs.getString("patientid");
+	    		String firstName = rs.getString("firstname");
+	    		String lastName = rs.getString("lastName");
+	    		patient.put("patientID", patientID);
+	    		patient.put("fullName", firstName + " " + lastName);
+	    		System.out.println(firstName + " " + lastName);
+	    		
+	    		patients.add(patient);
+
+	    	}
+	    	session.setAttribute("patients", patients);
 	    }
 		catch(SQLException se){
 	    	//Handle errors for JDBC
@@ -161,6 +153,6 @@ public class DrPatientSummary extends HttpServlet {
 	    		throw new ServletException(se);
 	    	}//end finally try
 	    }//end try
+	
 	}
-
 }
