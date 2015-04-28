@@ -1,14 +1,15 @@
 <%@ page import ="java.sql.*" %>
 <%@ page import ="javax.sql.*" %>
 <%@ page import="java.io.*" %>
+
  
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"
     import = "gatech.cs6440.project.DrPatientSummary"
+    import = "java.util.ArrayList"
+    import = "java.util.Map"
     %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-
-<%@ include file="WEB-INF/DrHeader.jsp" %>
 
 <html>
 <head>
@@ -53,6 +54,7 @@
 
 </head>
 <body>
+<%@ include file="WEB-INF/DrHeader.jsp" %>
 <div id="content">
  <img id="imgLogin" style="height:350px; width:300px; " src="${pageContext.request.contextPath}/Images/Dr.jpg" /></img>
  </div>
@@ -65,6 +67,7 @@
     <th class="tg-s6z2" colspan="6">Patient Photo </th>
   </tr>
     <%
+<<<<<<< HEAD
 		Class.forName("com.mysql.jdbc.Driver");
 		//java.sql.Connection con = DriverManager.getConnection("jdbc:mysql://localhost/eprescriptions","root","may@2007");
 		java.sql.Connection con = DriverManager.getConnection((String)session.getAttribute("databaseURL"),(String)session.getAttribute("dbuser"),(String)session.getAttribute("dbpassword"));
@@ -78,24 +81,23 @@
         while(rs.next())
         {
         	patient_id=rs.getString(3);	
+=======
+		ArrayList<Map<String, Object>> patientList = (ArrayList<Map<String, Object>>) session.getAttribute("patientList");
+    	for(int i = 0; i < patientList.size(); i++){
+    		Map<String, Object> patient = patientList.get(i);
+    		String patientID = patient.get("patientID").toString();
+    		String patientName = patient.get("patientName").toString();
+    		String appointment = patient.get("appointment").toString();
+>>>>>>> refs/remotes/origin/fullProject
             %>
 			<tr>		
-			<td align=center> <a href="DrPatientSummary?patient_id= <%= patient_id %>"> <%= rs.getString(5)%>      </a>     </td>	
-			<td align=center><a href="DrPatientSummary?patient_id= <%= patient_id %> "> <%= rs.getString(4)%>    </a>      </td>	
-			<%
-				if (i == 0) picture = "Picture1.jpg";
-				else if (i == 1) 
-					picture = "Picture3.jpg";	
-				else if (i == 2) 
-					picture = "Picture4.jpg";
-			%>
-					<td><img id="imgLogin1" style="height:55px; width:55px;" src= "${pageContext.request.contextPath}/Images/<%= picture %>"  /></img></td>
+			<td align=center> <a href="DrPatientSummary?patient_id= <%= patientID %>"> <%= appointment%>      </a>     </td>	
+			<td align=center><a href="DrPatientSummary?patient_id= <%= patientID %> "> <%= patientName%>    </a>      </td>	
+			<td><img id="imgLogin1" style="height:55px; width:55px;" src= "Images/Picture<%=i%>.jpg"  /></img></td>
 			</tr>
-<% 		
-        i = i + 1; } 
- %>
- <tr><td align=center><a href="DrPatientSelection.jsp"> New </a></td>
- <td align=center> <a href="DrPatientSelection.jsp"> Select Patient </a></td> 
+	<%} %>
+ <tr><td align=center></td>
+ <td align=center> <a href="AllPatientServlet">All Patients</a></td> 
  <td><img id="imgLogin2" style="height:55px; width:55px;"  src="${pageContext.request.contextPath}/Images/NewPatient.jpg" /></img></td>
  </tr> 
 </table>

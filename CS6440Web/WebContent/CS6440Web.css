@@ -47,5 +47,16 @@ a:visited{
 	background-color:#6699ff;
 	border: none;	
 	width:150px;
+	cursor:pointer;
+}
+
+.divPatient button{
+	color:black;
+	font:3.4em Futura, sans-serif;
+	font-size:100%;
+	padding:14px;
+	background-color:#6699ff;
+	border: none;	
+	width:150px;
 }
 

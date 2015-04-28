@@ -10,17 +10,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * Servlet implementation class PharmaSummary
+ * Servlet implementation class PrescriptionServlet
  */
-@WebServlet("/PharmaSummary")
-public class PharmaSummary extends HttpServlet {
+@WebServlet("/PrescriptionServlet")
+public class PrescriptionServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private HttpSession session;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public PharmaSummary() {
+    public PrescriptionServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -30,28 +29,23 @@ public class PharmaSummary extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		String username = request.getParameter("patient_id");
-		
-		try{
-			session = request.getSession(true);
-			String PatientID = username.trim();
-			Patient myPatient = new Patient();
-			myPatient.fetchPatient(PatientID);
-			if (myPatient.isPatient()){
-				session.setAttribute("patient", myPatient);
-				response.sendRedirect("PharmaPatientDetail.jsp");
-			}
-			else{
-				throw new ServletException("Invalid Patient ID: " + username);
-			}
-		}
-		catch(Exception e){
-			//System.out.println(e);
+		HttpSession session = request.getSession(true);
+		String patientID = request.getParameter("patientID");
+		Patient myPatient = new Patient();
+		try {
+			myPatient.fetchPatient(patientID);
+		} catch (Exception e) {
 			throw new ServletException(e);
-		} 
-	
+		}
 		
-		
+		if (myPatient.isPatient()){
+			session.setAttribute("patient", myPatient);
+			response.sendRedirect("Prescription.jsp");
+		}
+		else
+		{
+			throw new ServletException("Patient ID not found: " + patientID);
+		}
 	}
 
 	/**

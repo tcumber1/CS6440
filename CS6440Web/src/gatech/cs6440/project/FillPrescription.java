@@ -20,12 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-
 /**
- * Servlet implementation class DrugSearch
+ * Servlet implementation class FillPrescription
  */
-@WebServlet("/DrugSearch")
-public class DrugSearch extends HttpServlet {
+@WebServlet("/FillPrescription")
+public class FillPrescription extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	
@@ -33,13 +32,12 @@ public class DrugSearch extends HttpServlet {
 	static String DB_URL = "";
 	static String USER = "";
 	static String PASS = "";
-	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public DrugSearch() {
-        super();
+    public FillPrescription() {
+    	super();
         Properties prop = new Properties();
 		InputStream input = null;
 		input = Patient.class.getResourceAsStream("props.properties");
@@ -68,10 +66,11 @@ public class DrugSearch extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		Map <String, Object> map = new HashMap<String, Object> ();
-		String searchTerm = (String)request.getParameter("searchTerm");
-		System.out.println(searchTerm);
+		String message;
+		int prescriptionID = Integer.parseInt(request.getParameter("medicineid"));
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		
 		Connection conn = null;
 	    Statement stmt = null;
 	    try{
@@ -79,43 +78,21 @@ public class DrugSearch extends HttpServlet {
 	    	Class.forName("com.mysql.jdbc.Driver");
 
 	    	//STEP 2: Open a connection
-	    	System.out.println("Connecting to a selected database...");
 	    	conn = DriverManager.getConnection(DB_URL, USER, PASS);
-	    	System.out.println("Connected server successfully...");
 
-	    	System.out.println("Inserting records into the table...");
 	    	stmt = conn.createStatement();
 	    	
 	    	//STEP 3: Create SQL query
-	    	String sql = "Select PROPRIETARYNAME, ACTIVE_NUMERATOR_STRENGTH, ACTIVE_INGRED_UNIT, DOSAGEFORMNAME, PRODUCTNDC "
-	    			+ "From eprescriptions.drugs Where PROPRIETARYNAME like '%" + searchTerm + "%';";
-	    	ResultSet rs = stmt.executeQuery(sql);
-	    	//stmt.close();
-	    	List<Map<String, Object>> drugs = new ArrayList<Map<String, Object>>();
-	    	while(rs.next()){
-	    		Map <String, Object> drug = new HashMap<String, Object>();
-	    		String name = rs.getString("PROPRIETARYNAME");
-	    		String dosage = rs.getString("ACTIVE_NUMERATOR_STRENGTH") + " " + rs.getString("ACTIVE_INGRED_UNIT");
-	    		String dosageForm = rs.getString("DOSAGEFORMNAME");
-	    		String productNDC = rs.getString("PRODUCTNDC");
-	    		
-	    		drug.put("name", name);
-	    		drug.put("dosage", dosage);
-	    		drug.put("dosageForm", dosageForm);
-	    		drug.put("productNDC", productNDC);
-	    		
-	    		drugs.add(drug);
-	    	}
-	    	String error = "";
+	    	String sql = "Update medication "
+	    			+ "Set status = 'active' "
+	    			+ "Where medicationid = " + prescriptionID + ";";
+	    	stmt.executeUpdate(sql);
 	    	
-	    	if(drugs.isEmpty()){
-	    		error = "No results were found for " + searchTerm + ". Please try a different drug.";
-	    	}
+	    	message = "The prescription has been update.\nPlease hand the prescription to the patient now.";
+		    
+		    map.put("message", message);
+		    map.put("prescriptionID", prescriptionID);
 	    	
-	    	map.put("error", error);
-	    	map.put("drugs", drugs);
-	    	
-	    	write(response, map);
 	    }
 	    catch(SQLException se){
 	    	//Handle errors for JDBC
@@ -137,7 +114,8 @@ public class DrugSearch extends HttpServlet {
 	    		se.printStackTrace();
 	    	}//end finally try
 	    }//end try
-		
+	    
+	    write(response, map);
 	}
 
 	/**
@@ -145,12 +123,12 @@ public class DrugSearch extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		
 	}
 	
 	private void write(HttpServletResponse response, Map<String, Object> map) throws IOException{
 		response.setContentType("application/json");
 		String jsonString = new Gson().toJson(map);
-		System.out.println(jsonString);
 		response.getWriter().write(jsonString);
 		response.getWriter().close();
 	}

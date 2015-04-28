@@ -1,21 +1,6 @@
-
-
-<%@ page import="java.io.*" %>
-<%@ page import = "java.text.*" %>
-
-<%@ page import ="java.io.BufferedReader" %>
-<%@ page import ="java.io.ByteArrayInputStream" %>
-<%@ page import ="java.net.HttpURLConnection" %>
-<%@ page import ="java.net.URL" %>
-<%@ page import ="org.json.simple.JSONArray" %>
-<%@ page import ="org.json.simple.JSONObject" %>
-<%@ page import ="org.json.simple.parser.JSONParser" %>
-<%@ page import ="java.util.Iterator" %>
-
-
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"
-    import = "gatech.cs6440.project.Patient"
+    import="java.util.Map"
     import="java.util.ArrayList"
     %>
     
@@ -27,6 +12,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>E-Prescription Pharmacist</title>
+<link rel="stylesheet" type="text/css" href="CS6440Web.css" media="screen" />
 
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;border-color:#aaa;}
@@ -98,11 +84,20 @@ word-wrap: break-word;
 width:1200px
 }
 
+a:visited{
+	color:purple;
+}
+
+a:link{
+	color: black;
+}
+
 </style>
 
 </head>
 
 <body>
+<<<<<<< HEAD
 <% Patient currentPatient = (Patient) session.getAttribute("patient");%>
 <% 
 
@@ -125,51 +120,36 @@ width:1200px
 %>
 
 <p><SPAN STYLE="color: white; font-size: 25pt;font-weight: bold; background-color: #f38630">Patient Selection</SPAN>
+=======
+<% ArrayList<Map<String, Object>> prescriptions = (ArrayList<Map<String, Object>>) session.getAttribute("prescriptions");%>
+<div >
+<p style="text-align:center;"><SPAN STYLE="color: white; font-size: 25pt;font-weight: bold; background-color: #f38630">Patient Selection</SPAN>
+>>>>>>> refs/remotes/origin/fullProject
 </p>
-<table class="tg" >
+<table class="tg" align="center">
   <tr>
     <th >Patient Name</th>
-    <th class="tg-s6z2" colspan="6">Patient Id</th>
+    <th class="tg-s6z2" colspan="6">Prescription</th>
   </tr>
-
-
-<%	      
-	      InputStream inStream = new ByteArrayInputStream((sb.toString().getBytes("utf-8")));
-	      InputStreamReader reader = new InputStreamReader(inStream);
-	      JSONParser jsonParser = new JSONParser();
-	      JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
-	      JSONArray lang= (JSONArray) jsonObject.get("entry");
-	      Iterator<?> i3 = lang.iterator();   
-	       
-
-	      while (i3.hasNext()) {
-	    	  JSONObject structure = (JSONObject) i3.next();
-	    	  
-	    	  JSONObject structure1 = (JSONObject) structure.get("content");
-	    	      	      	  
-	    	  JSONArray lang1= (JSONArray) structure1.get("name");
-	      
-	    	      Iterator<?> i2 = lang1.iterator(); 
-			      while (i2.hasNext()) {
-			            JSONObject innerObj = (JSONObject) i2.next();
-		            String givenname = innerObj.get("given").toString().replaceAll("\"", "").replace("[", "").replace("]", "");
-		            String familyname = innerObj.get("family").toString().replaceAll("\"", "").replace("[", "").replace("]", "");
- %>
-				    <tr>
-				    <td class="tg-031e"> <%= givenname +"  "+familyname  %> </td>
-				   	    
-			<%      }	   
-			      
-		  JSONArray lang2= (JSONArray) structure1.get("identifier");  
-		  Iterator<?> i4 = lang2.iterator(); 
-		  while (i4.hasNext()) {
-		           JSONObject innerObj1 = (JSONObject) i4.next();
-		           String Id = innerObj1.get("value").toString();
-		           %>
-			   <td class="tg-031e"><a href="PharmaSummary?patient_id= <%= Id %>"> <%= Id %> </a> </td> </tr>
-		 <%   } }	  %>
+	<% 
+		for(int i = 0; i < prescriptions.size(); i++){
+			Map<String, Object> prescription = prescriptions.get(i);
+			String patientID = prescription.get("patientID").toString();
+			String patientName = prescription.get("patientName").toString();
+			String drugName = prescription.get("drugName").toString();%>
+			<tr>
+				<td>
+					<a href="PharmaSummary?patient_id= <%=patientID %>"><%=patientName%></a>
+				</td>
+				<td>
+					<%=drugName %>
+				</td>
+			</tr>
+	<%	}
+	%>
 
 
 </table>
+</div>
 </body>
 </html>

@@ -1,22 +1,9 @@
-
-
-<%@ page import="java.io.*" %>
-<%@ page import = "java.text.*" %>
-
-<%@ page import ="java.io.BufferedReader" %>
-<%@ page import ="java.io.ByteArrayInputStream" %>
-<%@ page import ="java.net.HttpURLConnection" %>
-<%@ page import ="java.net.URL" %>
-<%@ page import ="org.json.simple.JSONArray" %>
-<%@ page import ="org.json.simple.JSONObject" %>
-<%@ page import ="org.json.simple.parser.JSONParser" %>
-<%@ page import ="java.util.Iterator" %>
-
-
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"
     import = "gatech.cs6440.project.Patient"
     import="java.util.ArrayList"
+    import="java.util.HashMap"
+	import="java.util.Map"
     %>
     
     
@@ -48,6 +35,10 @@ h1 {
 }
 h2 {
   font : bold 12pt Arial, Helvetica, geneva;
+}
+
+td {
+	align:center;
 }
 #header {
   position : fixed;
@@ -101,8 +92,14 @@ width:1200px
 </head>
 
 <body>
-<% Patient currentPatient = (Patient) session.getAttribute("patient");%>
+<div style="float:left; width:100%; border-bottom: solid 5px; background-color : #56A5E7;">
+		<div style="text-align:center; width:100%; float:left; padding-right:0px;">
+			<h1>E-Prescription Web: All Patients 
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href ="Login.jsp"> <font color=black face="Verdana, Geneva, sans-serif" size = "3">Logout</font> </a> </h1>
+		</div>
 		
+<<<<<<< HEAD
 <% 
 
 	      //String httpsURL = "https://taurus.i3l.gatech.edu:8443/HealthPort/fhir/Patient/?_format=json";
@@ -123,53 +120,36 @@ width:1200px
 %>
 
 <p><a name="patientlist"><SPAN STYLE="color: white; font-size: 25pt;font-weight: bold; background-color: #f38630">Patient Selection</SPAN></a>
+=======
+</div>
+<p style="text-align:center;"><a name="patientlist"><SPAN STYLE="color: white; font-size: 25pt;font-weight: bold; background-color: #f38630">Patient Selection</SPAN></a>
+>>>>>>> refs/remotes/origin/fullProject
 <a href="DrAppointments.jsp"><SPAN STYLE="color: white; font-size: 15pt; background-color: black">Back</SPAN></a>
 </p>
-<table class="tg" >
+<table class="tg" align="center">
   <tr>
     <th >Patient Name</th>
     <th class="tg-s6z2" colspan="6">Patient Id</th>
   </tr>
+  		<% ArrayList<Map<String, Object>> patients = (ArrayList<Map<String, Object>>) session.getAttribute("patients");
+  		
+  		for(int i = 0; i < patients.size(); i++){
+  			Map<String, Object> patient = patients.get(i); %>
+  		
 
-
-<%	      
-	      InputStream inStream = new ByteArrayInputStream((sb.toString().getBytes("utf-8")));
-	      InputStreamReader reader = new InputStreamReader(inStream);
-	      JSONParser jsonParser = new JSONParser();
-	      JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
-	      JSONArray lang= (JSONArray) jsonObject.get("entry");
-	      Iterator<?> i3 = lang.iterator();   
-	       
-
-	      while (i3.hasNext()) {
-	    	  JSONObject structure = (JSONObject) i3.next();
-	    	  
-	    	  JSONObject structure1 = (JSONObject) structure.get("content");
-	    	      	      	  
-	    	  JSONArray lang1= (JSONArray) structure1.get("name");
-	      
-	    	      Iterator<?> i2 = lang1.iterator(); 
-			      while (i2.hasNext()) {
-			            JSONObject innerObj = (JSONObject) i2.next();
-		            String givenname = innerObj.get("given").toString().replaceAll("\"", "").replace("[", "").replace("]", "");
-		            String familyname = innerObj.get("family").toString().replaceAll("\"", "").replace("[", "").replace("]", "");
- %>
-				    <tr>
-				    <td class="tg-031e"> <%= givenname +"  "+familyname  %> </td>
-				   	    
-			<%      }	   
+			    <tr>
+				    <td class="tg-031e"> <%=patient.get("fullName") %> </td>
+  
 			      
-		  JSONArray lang2= (JSONArray) structure1.get("identifier");  
-		  Iterator<?> i4 = lang2.iterator(); 
-		  while (i4.hasNext()) {
-		           JSONObject innerObj1 = (JSONObject) i4.next();
-		           String Id = innerObj1.get("value").toString();
-		           %>
-			   <td class="tg-031e"><a href="DrPatientSummary?patient_id= <%= Id %>"> <%= Id %> </a> </td> </tr>
-		 <%   } }	  %>
+		  
+			   <td class="tg-031e"><a href="DrPatientSummary?patient_id= <%= patient.get("patientID") %>"> <%= patient.get("patientID") %> </a> </td> </tr>
+		<%	   }
+  		%>
+
 
 
 </table>
-<a href="DrAppointments.jsp"><SPAN STYLE="color: white; font-size: 15pt;font-weight: bold; background-color: black">Back</SPAN></a>
+<%@ include file="WEB-INF/footer.jsp" %>
+
 </body>
 </html>
